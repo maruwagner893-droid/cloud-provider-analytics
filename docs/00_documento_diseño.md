@@ -272,17 +272,17 @@ Por último en Reduce: PySpark agrega los valores agrupados y produce las métri
 
 ### Caso desarrollado: billing_monthly
 
-En Billing_monthly tenemos facturas en distintas monedas (USD, ARS, EUR). Para saber cuánto gastó cada organización en total, PySpark hace esto:
+En billing_monthly tenemos facturas en distintas monedas (USD, ARS, EUR). Para saber cuánto gastó cada organización en total, PySpark hace esto:
 
-Map: lee cada factura y multiplica el subtotal por el tipo de cambio para convertirlo a USD. El resultado es un par (org_id, monto_en_usd). Como ejemplo, org_xaji0y6d tiene 3 facturas. Las dos primeras ya vienen en USD así que el valor queda tal cual: 1133.34 y 619.17. La tercera viene en ARS, entonces hay que convertirla: 540.79 × 0.00160 = 0.87 USD.
+Map: lee cada factura y multiplica el subtotal por el tipo de cambio para convertirlo a USD. El resultado es un par (org_id, monto_en_usd). Como ejemplo, org_xaji0y6d tiene 3 facturas. Las tres se multiplican por su exchange_rate_to_usd, incluso las de USD, porque su tasa no es exactamente 1.0: 1133.34 × 0.97684 = 1107.09 USD y 619.17 × 1.00331 = 621.22 USD. La tercera viene en ARS: 540.79 × 0.00160 = 0.87 USD.
 
 Shuffle: junta todas las facturas de org_xaji0y6d en un mismo nodo, todas las de org_pbhsahxt en otro, etc.
 
-Reduce: suma todos los montos de cada organización. org_xaji0y6d tenía tres facturas: 1133.34 USD + 619.17 USD + 0.87 USD = 1753.38 USD total.
+Reduce: suma todos los montos de cada organización. org_xaji0y6d tenía tres facturas: 1107.09 USD + 621.22 USD + 0.87 USD = 1729.18 USD total.
 
 Grano final: al terminar tenemos una sola fila por organización con su costo total en USD.
 
-Validación: total_usd no puede ser nulo; si credits es nulo se trata como 0. No se puede verificar sumando los subtotales originales porque están en monedas distintas. Para validar se toman las facturas en USD (exchange_rate_to_usd = 1.0) y se verifica que el total_usd coincida con el subtotal original.
+Validación: total_usd no puede ser nulo; si credits es nulo se trata como 0. No se puede verificar sumando los subtotales originales porque están en monedas distintas. Para validar se recalcula el total de una organización fila por fila, subtotal × exchange_rate_to_usd, y se verifica que coincida con el total_usd que produjo el Reduce. Además se controla que ninguna tasa sea nula o cero.
 ## 10. Supuestos y riesgos
 ### Supuestos
 
