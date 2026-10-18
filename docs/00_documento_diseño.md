@@ -73,7 +73,7 @@ Las tablas tienen los siguientes problemas de calidad:
 
 **Nps_surveys:** nulos en nps_score (20.65%) y comment (10.87%). La columna survey_date está guardada como texto en vez de datetime.
 
-**Billing_monthly:** nulos en credits (57.08%), y un subtotal negativo (-1671.83). Las facturas vienen en tres monedas (USD, ARS y EUR); la tabla incluye exchange_rate_to_usd para convertirlas, pero si no se aplica en la capa Bronze las sumas quedan en monedas distintas y resultan incorrectas. La columna month está guardada como texto en vez de datetime.
+ **Billing_monthly:** nulos en credits (57.08%), y 13 facturas con subtotal negativo (el valor más bajo es -1671.83). Las facturas vienen en tres monedas (USD, ARS y EUR); la tabla incluye exchange_rate_to_usd para convertirlas, pero si no se aplica en la capa Bronze las sumas quedan en monedas distintas y resultan incorrectas. La columna month está guardada como texto en vez de datetime.
 
 **Usage_events_stream:** nulos en value (2.03%), unit (4.80%), carbon_kg (25%) y genai_tokens (92.75%); además costos negativos en cost_usd_increment. Los nulos de carbon_kg coinciden exactamente con los registros de schema_version = 1, lo que indica una evolución del esquema y no un error aleatorio. La columna value tiene tipo object en vez de numérico, lo que impide cálculos de consumo. La columna timestamp está guardada como texto en vez de datetime.
 
@@ -100,8 +100,7 @@ Ninguna tabla muestra filas duplicadas.
 ### Riesgos identificados
 
 #### Riesgo 1: Costos negativos en billing_monthly y usage_events_stream
-
-En billing_monthly encontramos un subtotal negativo de -1671.83. Estos valores no son errores, sino créditos reales del proveedor de nube, como devoluciones o ajustes por compromisos de uso. Si los eliminamos, el gasto neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos. Lo que confirma que son créditos reales y no errores es el impuesto: en los 13 registros negativos, el tax siempre es el 21% del valor absoluto del subtotal. Si fueran errores de carga, el impuesto sería inconsistente. Por eso los mantenemos en el pipeline marcados como créditos y no los mandamos a Quarantine.
+En billing_monthly encontramos 13 subtotales negativos, el más bajo de -1671.83. Estos valores probablemente no son errores, sino créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso. Si los eliminamos, el gasto neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos. Lo que apoya que son créditos y no errores es el impuesto: en los 13 registros negativos, el tax siempre es el 21% del valor absoluto del subtotal. Si fueran errores de carga, el impuesto sería inconsistente. Por eso los mantenemos en el pipeline marcados como créditos y no los mandamos a Quarantine.
 
 En usage_events_stream encontramos cost_usd_increment con valores hasta -154.46. Acá lo consideramos una anomalía porque un recurso de nube no puede generar un consumo físico negativo.
 
