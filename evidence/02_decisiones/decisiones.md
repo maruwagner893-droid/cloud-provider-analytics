@@ -7,7 +7,7 @@ Kappa solo utiliza procesamiento en tiempo real (streaming), con un único camin
 
 ## Por qué los costos negativos de billing_monthly no van a Quarantine
 
-En la exploración encontramos un subtotal de -1671.83 en billing_monthly. En un primer momento parece un error, pero al analizar el contexto de negocio se trata de un crédito real del proveedor de nube, como una devolución o un ajuste por compromiso de uso. Si lo mandáramos a Quarantine, el costo neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos. Por eso se mantiene en el pipeline y se lo marca como crédito.
+En billing_monthly encontramos 13 facturas con subtotal negativo, la más baja es de -1671.83. Decidimos mantenerlas en el pipeline marcadas como créditos y no enviarlas a Quarantine. Probablemente son créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso, y lo que apoya esa hipótesis es el impuesto, donde en los 13 registros negativos, el tax siempre es el 21% del valor absoluto del subtotal. Si las enviáramos a Quarantine, el gasto neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos; además, el diseño no corrige los datos en cuarentena, así que quedarían afuera de los totales.
 
 ## Por qué los costos negativos de usage_events_stream sí van a Quarantine
 
@@ -23,8 +23,7 @@ En la exploración se verificó que los 10.800 registros con carbon_kg nulo coin
 
 ## Por qué se usa Parquet y no CSV en Bronze, Silver y Gold
 
-Parquet guarda los datos por columnas y comprimidos. Si PySpark necesita solo algunos campos, lee solo esas columnas sin abrir el archivo completo. Con 43.200 eventos y múltiples tablas, esto hace el procesamiento más rápido y ocupa menos espacio que CSV.
+ Por que parquet guarda los datos por columnas y comprimidos. Si PySpark necesita solo algunos campos, lee solo esas columnas sin abrir el archivo completo. Con 43.200 eventos y múltiples tablas, esto hace el procesamiento más rápido y ocupa menos espacio que CSV.
 
 ## Por qué el watermark es de 10 minutos
-
-Decidimos que el watermark se aplica sobre el campo timestamp de usage_events_stream para manejar eventos que llegan tarde al pipeline. donde el valor de 10 minutos viene de mirar los datos reales: el dataset tiene 43.200 eventos en 60 días, lo que da un evento cada 2 minutos en promedio. Eso nos dice que los eventos se generan  de forma seguido , así que entre que pasa el evento y que nosotros lo recibimos pasan pocos minutos.Por ello con 10 minutos tenemos margen para cualquier demora normal sin que Spark acumule estado de más. Si poníamos 1 hora, Spark guardaba en memoria una hora de eventos sin necesidad; por lo que si poníamos 1 minuto, corríamos el riesgo de descartar eventos que llegaron apenas tarde pero que son válidos.
+Decidimos usar un watermark de 10 minutos sobre el campo timestamp de usage_events_stream, y ordenar los eventos por timestamp antes de enviarlos al stream. Donde el watermark le dice a Spark hasta cuándo esperar eventos que llegan tarde. Elegimos 10 minutos porque es un valor intermedio para que el sistema funcione de forma continua,ya que los eventos llegarían casi en orden: con 1 hora Spark guardaría en memoria eventos de la última hora sin necesidad, y con 1 minuto correríamos el riesgo de descartar eventos válidos que llegaron un poco tarde. El orden previo es necesario porque los 120 archivos no están ordenados cronológicamente:  dnde cada uno abarca casi todo el rango, y si los procesáramos tal como están, cerca del 99,1 % de los eventos se marcaría como tardío. Como el dataset no permite medir el retraso real de llegada, el valor se ajustará en la implementación si hace falta.
