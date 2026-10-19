@@ -24,7 +24,7 @@ Nulos en nps_score (20.65%) y comment (10.87%). La columna survey_date está gua
 
 ## billing_monthly:
 
-Nulos en credits (57.08%), y 13 facturas con subtotal negativo (el valor más bajo es -1671.83). Estos valores probablemente son créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso. Las facturas vienen en tres monedas (USD, ARS y EUR); la tabla incluye exchange_rate_to_usd para convertirlas, pero si no se aplica en la capa Bronze las sumas quedan en monedas distintas y resultan incorrectas. La columna month está guardada como texto en vez de datetime.
+Nulos en credits (57.08%), y 13 facturas con subtotal negativo (el valor más bajo es -1671.83). Estos valores probablemente son créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso. Las facturas vienen en tres monedas (USD, ARS y EUR); la tabla incluye exchange_rate_to_usd para convertirlas, pero si no se aplica en la capa Silver las sumas quedan en monedas distintas y resultan incorrectas. La columna month está guardada como texto en vez de datetime.
 
 ## usage_events_stream:
 
