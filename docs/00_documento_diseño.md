@@ -73,7 +73,7 @@ Las tablas tienen los siguientes problemas de calidad:
 
 **Nps_surveys:** nulos en nps_score (20.65%) y comment (10.87%). La columna survey_date está guardada como texto en vez de datetime.
 
- **Billing_monthly:** nulos en credits (57.08%), y 13 facturas con subtotal negativo (el valor más bajo es -1671.83). Las facturas vienen en tres monedas (USD, ARS y EUR); la tabla incluye exchange_rate_to_usd para convertirlas, pero si no se aplica en la capa Bronze las sumas quedan en monedas distintas y resultan incorrectas. La columna month está guardada como texto en vez de datetime.
+ **Billing_monthly:** nulos en credits (57.08%), y 13 facturas con subtotal negativo (el valor más bajo es -1671.83). Las facturas vienen en tres monedas (USD, ARS y EUR); la tabla incluye exchange_rate_to_usd para convertirlas, pero si no se aplica en la capa Silver las sumas quedan en monedas distintas y resultan incorrectas. La columna month está guardada como texto en vez de datetime.
 
 **Usage_events_stream:** nulos en value (2.03%), unit (4.80%), carbon_kg (25%) y genai_tokens (92.75%); además costos negativos en cost_usd_increment. Los nulos de carbon_kg coinciden exactamente con los registros de schema_version = 1, lo que indica una evolución del esquema y no un error aleatorio. La columna value tiene tipo object en vez de numérico, lo que impide cálculos de consumo. La columna timestamp está guardada como texto en vez de datetime.
 
