@@ -20,6 +20,7 @@ Las tres áreas  siempre consultan filtrando por organización y por período de
 ## Por qué los nulos de carbon_kg no van a Quarantine
 
 En la exploración se verificó que los 10.800 registros con carbon_kg nulo coinciden exactamente con los registros de schema_version = 1. Eso indica que es una evolución del esquema y no un error aleatorio: la versión 1 simplemente no incluía ese campo. Mandarlos a Quarantine eliminaría una cuarta parte del historial de eventos sin razón válida.
+
 ## Por qué se usa Parquet y no CSV en Bronze, Silver y Gold
 
 Por que parquet guarda los datos por columnas y comprimidos.Si PySpark necesita solo algunos campos, lee solo esas columnas sin abrir el archivo completo. Con 43.200 eventos y múltiples tablas, esto hace el procesamiento más rápido y ocupa menos espacio que CSV.
