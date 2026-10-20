@@ -225,13 +225,9 @@ PySpark necesita solo algunos de esos datos, lee solo la columna y no el
 archivo completo. En el proyecto tenemos 43.200 eventos y múltiples tablas, 
 y con esto lo podemos hacer más rápido y que ocupe menos espacio.
 
-Dentro de cada zona los archivos se organizan por año, mes y organización 
-para que PySpark pueda leerlos sin la necesidad de consultar todo.
+Los eventos de uso (usage_events_stream) se organizan por year/month. Con las 80 organizaciones del dataset, particionar también por org_id generaría 160 carpetas de unas 264 filas cada una, con muchos archivos pequeños. Con año y mes quedan solo 2 carpetas, de 20.880 y 22.320 eventos, y PySpark sigue aplicando partition pruning, es decir que no lee todo el dataset cuando se filtra por período. Las consultas por organización las resuelve Cassandra/AstraDB en la capa de serving. Las tablas CSV (clientes, usuarios, recursos, tickets, marketing, NPS y billing) no se particionan, porque tienen entre 80 y 1.500 filas.
 
-La organización de archivos en `year/month/org_id` responde al patrón de consulta de las tres áreas de negocio: FinOps, Soporte y Producto siempre filtran por organización y por período de tiempo. Con esta estructura, PySpark aplica partition pruning y accede únicamente a las carpetas que corresponden al filtro, sin necesidad de escanear el dataset completo. En un escenario de producción con miles de organizaciones, esto reduce significativamente el tiempo de procesamiento y el costo de lectura.
-
-
-Para que un registro pase de una zona a la siguiente se aplican estas reglas: de Landing a Bronze, el archivo tiene que poder leerse sin errores; si está corrupto no se ingesta. De Bronze a Silver, el registro tiene que tener los tipos de dato correctos y las columnas de metadatos (ingest_ts, source_file); si no cumple va a Quarantine. De Silver a Gold, el registro tiene que estar limpio: nulos tratados, moneda normalizada y joins aplicados; si no cumple va a Quarantine. De Gold a Cassandra, las métricas no pueden tener nulos en los campos clave.
+Para que un registro pase de una zona a la siguiente se aplican estas reglas: de Landing a Bronze, el archivo tiene que poder leerse sin errores; si está corrupto no se ingesta. De Bronze a Silver, el registro tiene que tener los tipos de dato correctos y las columnas de metadatos:ingest_ts, source_file; si no cumple va a Quarantine. De Silver a Gold, el registro tiene que estar limpio: nulos tratados, moneda normalizada y joins aplicados; si no cumple va a Quarantine. De Gold a Cassandra, las métricas no pueden tener nulos en los campos clave.
 
 En Landing los datos se conservan 30 días, ya que una vez ingeridos en Bronze los archivos crudos no son necesarios; si hay que reprocesar, Bronze es el punto de partida. En Bronze y Silver se mantiene una retención de 1 año, lo que permite reprocesar desde Bronze ante errores en la lógica de transformación o recalcular métricas de Gold sin volver a la capa de limpieza. En Gold los datos se conservan indefinidamente, dado que son las métricas de negocio consultadas continuamente por las tres áreas. En Quarantine la retención es de 90 días, que es el período disponible para revisión manual antes del descarte definitivo.
 
@@ -303,7 +299,7 @@ El campo credits tiene un 57% de valores nulos y no está definido en Silver có
 
 Si aparece una versión 3 del schema, se tendrá que volver a modificar las capas para poder limpiar y mostrar los datos, es decir que se tendría que tocar todo el proceso.
 
-La partición por year/month/org_id con el volumen actual del dataset genera archivos pequeños: con 43.200 eventos distribuidos en 2 meses y 80 organizaciones, cada partición termina con aproximadamente 270 eventos. En vez de leer un archivo grande de una sola vez, Spark tiene que abrir, leer y cerrar cientos de archivos chicos uno por uno, lo que consume tiempo y recursos extra que no aportan nada al cálculo.
+Con la partición por year/month, los 43.200 eventos quedan en 2 carpetas de 20.880 y 22.320 eventos, así que el volumen actual no genera archivos pequeños por la partición. El riesgo sigue existiendo en el streaming, porque cada micro-lote escribe archivos chicos, y si más adelante se agregara org_id como partición, cada carpeta tendría unas 264 filas y Spark tendría que abrir y cerrar muchos archivos chicos que no aportan nada al cálculo.
 
 ## Mitigación de los Riesgos
 
