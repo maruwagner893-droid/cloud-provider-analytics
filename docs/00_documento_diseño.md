@@ -229,6 +229,8 @@ Los eventos de uso (usage_events_stream) se organizan por year/month. Con las 80
 
 Para que un registro pase de una zona a la siguiente se aplican estas reglas: de Landing a Bronze, el archivo tiene que poder leerse sin errores; si está corrupto no se ingesta. De Bronze a Silver, el registro tiene que tener los tipos de dato correctos y las columnas de metadatos:ingest_ts, source_file; si no cumple va a Quarantine. De Silver a Gold, el registro tiene que estar limpio: nulos tratados, moneda normalizada y joins aplicados; si no cumple va a Quarantine. De Gold a Cassandra, las métricas no pueden tener nulos en los campos clave.
 
+Luego en quarantine se guarda el registro original sin modificarse, junto con los metadatos ingest_ts y source_file y una columna con el motivo del rechazo. De esa forma el equipo puede revisar cada caso durante los 90 días de retención y decidir si lo corrige o lo descarta.
+
 En Landing los datos se conservan 30 días, ya que una vez ingeridos en Bronze los archivos crudos no son necesarios; si hay que reprocesar, Bronze es el punto de partida. En Bronze y Silver se mantiene una retención de 1 año, lo que permite reprocesar desde Bronze ante errores en la lógica de transformación o recalcular métricas de Gold sin volver a la capa de limpieza. En Gold los datos se conservan indefinidamente, dado que son las métricas de negocio consultadas continuamente por las tres áreas. En Quarantine la retención es de 90 días, que es el período disponible para revisión manual antes del descarte definitivo.
 
 ## 8. Flujo batch y streaming
