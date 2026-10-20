@@ -100,7 +100,8 @@ Ninguna tabla muestra filas duplicadas.
 ### Riesgos identificados
 
 #### Riesgo 1: Costos negativos en billing_monthly y usage_events_stream
-En billing_monthly encontramos 13 subtotales negativos, el más bajo de -1671.83. Estos valores probablemente no son errores, sino créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso. Si los eliminamos, el gasto neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos. Lo que apoya que son créditos y no errores es el impuesto: en los 13 registros negativos, el tax siempre es el 21% del valor absoluto del subtotal. Si fueran errores de carga, el impuesto sería inconsistente. Por eso los mantenemos en el pipeline marcados como créditos y no los mandamos a Quarantine.
+
+El primer riesgo es en  billing_monthly donde encontramos 13 subtotales negativos, el más bajo de -1671.83. Estos valores probablemente no son errores, sino créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso. Si los eliminamos, el gasto neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos. Lo que apoya que son créditos y no errores es el impuesto: en los 13 registros negativos, el tax siempre es el 21% del valor absoluto del subtotal. Si fueran errores de carga, el impuesto sería inconsistente. Por eso los mantenemos en el pipeline marcados como créditos y no los mandamos a Quarantine.
 
 En usage_events_stream encontramos cost_usd_increment con valores hasta -154.46. Acá lo consideramos una anomalía porque un recurso de nube no puede generar un consumo físico negativo.
 
@@ -186,7 +187,7 @@ flowchart TD
 
 ## 5. Patrón arquitectónico
 
-Se eligió el patrón Lambda porque es un modelo diseñado para procesar datos combinando dos capas: una capa de velocidad, que procesa datos en tiempo real (streaming), y una capa de lotes (batch), que procesa grandes volúmenes de datos en intervalos de tiempo predefinidos. El proyecto tiene  dos caminos de procesamiento: uno para datos que llegan periódicamente (batch) y otro para datos que llegan en tiempo real (streaming):donde la fuente usage_events_stream requiere procesamiento en tiempo real (streaming), mientras que billing_monthly, support_tickets, customers_orgs, users, resources, nps_surveys y marketing_touches son datos periódicos que se procesan en lotes (batch). En nuestra modelo de arquitectura que proponemos, ambas capas se construyen con PySpark: la capa de lotes mediante procesamiento batch estándar, y la capa de velocidad mediante Structured Streaming.
+Elegimos el patrón Lambda porque es un modelo diseñado para procesar datos combinando dos capas: una capa de velocidad, que procesa datos en tiempo real (streaming), y una capa de lotes (batch), que procesa grandes volúmenes de datos en intervalos de tiempo predefinidos. El proyecto tiene  dos caminos de procesamiento: uno para datos que llegan periódicamente (batch) y otro para datos que llegan en tiempo real (streaming):donde la fuente usage_events_stream requiere procesamiento en tiempo real (streaming), mientras que billing_monthly, support_tickets, customers_orgs, users, resources, nps_surveys y marketing_touches son datos periódicos que se procesan en lotes (batch). En nuestra modelo de arquitectura que proponemos, ambas capas se construyen con PySpark: la capa de lotes mediante procesamiento batch estándar, y la capa de velocidad mediante Structured Streaming.
 
 Ademas consideramos que Kappa no aplica porque solo utiliza procesamiento en tiempo real (streaming), con un único camino para todos los datos, y no es adecuado para datos maestros y periódicos como los que tiene este proyecto. 
 Luego para la capa de presentacion del cliente todos los datos  convergen en la zona Gold, desde donde se cargan a Cassandra para su consumo.
@@ -212,20 +213,14 @@ Luego para la capa de presentacion del cliente todos los datos  convergen en la 
 ## 7. Diseño del Data Lake
 El Data Lake se organiza en cinco zonas: Landing, Bronze, Silver y Gold como zonas progresivas, y Quarantine para los registros inválidos.
 
-En landing se guardan los datos como están, sin modificarse. Bronze toma esos 
-datos y los tipifica, agrega columnas extra para saber cuándo y de dónde 
-vinieron, como por ejemplo ingest_ts y source_file.
+En landing se guardan los datos como están, sin modificarse. Bronze toma esos datos y los tipifica, agregamos columnas extra para saber cuándo y de dónde vinieron, como por ejemplo ingest_ts y source_file.
+
 En Silver limpiamos los datos: se sacan los duplicados si tienen, se arreglan los nulos. 
-Por último, en Gold se producen las métricas finales para que los usuarios 
-de FinOps, Soporte y Producto puedan consultarlas.
+Por último, en Gold se producen las métricas finales para que los usuarios de FinOps, Soporte y Producto puedan consultarlas.
 
-Los archivos en Bronze, Silver y Gold se guardan en formato Parquet en 
-vez de CSV porque se guardan los datos por columnas y comprimidos. Si 
-PySpark necesita solo algunos de esos datos, lee solo la columna y no el 
-archivo completo. En el proyecto tenemos 43.200 eventos y múltiples tablas, 
-y con esto lo podemos hacer más rápido y que ocupe menos espacio.
+Los archivos en Bronze, Silver y Gold se guardan en formato Parquet en vez de CSV porque se guardan los datos por columnas y comprimidos. Si PySpark necesita solo algunos de esos datos, lee solo la columna y no el archivo completo. En el proyecto tenemos 43.200 eventos y múltiples tablas, y con esto lo podemos hacer más rápido y que ocupe menos espacio.
 
-Los eventos de uso (usage_events_stream) se organizan por year/month. Con las 80 organizaciones del dataset, particionar también por org_id generaría 160 carpetas de unas 264 filas cada una, con muchos archivos pequeños. Con año y mes quedan solo 2 carpetas, de 20.880 y 22.320 eventos, y PySpark sigue aplicando partition pruning, es decir que no lee todo el dataset cuando se filtra por período. Las consultas por organización las resuelve Cassandra/AstraDB en la capa de serving. Las tablas CSV (clientes, usuarios, recursos, tickets, marketing, NPS y billing) no se particionan, porque tienen entre 80 y 1.500 filas.
+Los eventos de uso consideramos que se organicen por year/month. debido a que con las 80 organizaciones del dataset, particionar también por org_id generaría 160 carpetas de unas 264 filas cada una, con muchos archivos pequeños. Con año y mes quedan solo 2 carpetas, de 20.880 y 22.320 eventos, y PySpark sigue aplicando partition pruning, es decir que no lee todo el dataset cuando se filtra por período. Las consultas por organización las resuelve Cassandra/AstraDB en la capa de serving. Las tablas CSV (clientes, usuarios, recursos, tickets, marketing, NPS y billing) no se particionan, porque tienen entre 80 y 1.500 filas.
 
 Para que un registro pase de una zona a la siguiente se aplican estas reglas: de Landing a Bronze, el archivo tiene que poder leerse sin errores; si está corrupto no se ingesta. De Bronze a Silver, el registro tiene que tener los tipos de dato correctos y las columnas de metadatos:ingest_ts, source_file; si no cumple va a Quarantine. De Silver a Gold, el registro tiene que estar limpio: nulos tratados, moneda normalizada y joins aplicados; si no cumple va a Quarantine. De Gold a Cassandra, las métricas no pueden tener nulos en los campos clave.
 
@@ -253,7 +248,7 @@ En Landing los datos se conservan 30 días, ya que una vez ingeridos en Bronze l
 5. Desde Silver Stream converge con el camino batch en Gold.
 6. Desde Gold se escribe en Cassandra/AstraDB.
 
-Para el streaming definimos un watermark de 10 minutos sobre el campo timestamp de usage_events_stream. El watermark le dice a Spark hasta cuándo esperar eventos que llegan tarde: si el último evento procesado tiene timestamp 10:00, todavía acepta eventos hasta las 9:50, y los que llegan después de eso los descarta.
+Para el streaming definimos un watermark de 10 minutos sobre el campo timestamp de usage_events_stream.Donde el watermark le dice a Spark hasta cuándo esperar eventos que llegan tarde: si el último evento procesado tiene timestamp 10:00, todavía acepta eventos hasta las 9:50, y los que llegan después de eso los descarta.
 
 Por que al explorar los datos vimos que los 120 archivo no están ordenados cronológicamente: Dado que cada archivo abarca casi todo el rango, del 03/07/2025 al 31/08/2025. Si los procesáramos en el orden en que están, cerca del 99,1 % de los eventos se marcaría como tardío y el stream quedaría casi vacío. Por eso ordenamos los eventos por timestamp y los enviamos en ese orden.
 
@@ -274,7 +269,7 @@ Por último en Reduce: PySpark agrega los valores agrupados y produce las métri
 
 ### Caso desarrollado: billing_monthly
 
-En billing_monthly tenemos facturas en distintas monedas (USD, ARS, EUR). Para saber cuánto gastó cada organización en total, PySpark hace esto:
+En billing_monthly tenemos facturas en distintas monedas: USD, ARS, EUR. Para saber cuánto gastó cada organización en total, PySpark hace lo siguiente:
 
 Map: lee cada factura, descuenta los créditos, donde si credits es nulo vale 0 y multiplica el resultado por el tipo de cambio para convertirlo a USD. El resultado es un par:org_id, monto_en_usd. Como ejemplo tenemos que org_xaji0y6d tiene 3 facturas. Las tres se multiplican por su exchange_rate_to_usd, incluso las de USD, porque su tasa no es exactamente 1.0: 1133.34 × 0.97684 = 1107.09 USD y 619.17 × 1.00331 = 621.22 USD. La tercera viene en ARS: 540.79 × 0.00160 = 0.87 USD.
 
