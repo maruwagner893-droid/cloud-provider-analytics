@@ -13,9 +13,9 @@ En billing_monthly encontramos 13 facturas con subtotal negativo, la más baja e
 
 En usage_events_stream encontramos cost_usd_increment con valores hasta -154.46. A diferencia de billing, acá no tiene sentido de negocio: un recurso de nube no puede generar un consumo físico negativo. Por eso se tratan como anomalías y se envían a Quarantine.
 
-## Por qué se particiona por year/month/org_id
+## Por qué se particiona por year/month
 
-Las tres áreas  siempre consultan filtrando por organización y por período de tiempo. Con esa estructura de carpetas, PySpark va directo a la carpeta que corresponde sin necesidad de leer el dataset completo. En un escenario de producción con miles de organizaciones, esto reduce significativamente el tiempo de procesamiento.
+Decidimos particionar los eventos solo por year/month, que deja 2 carpetas de 20.880 y 22.320 eventos, y no particionar las tablas CSV porque tienen pocas filas.  por que la partición por year/month sirve para procesar y reprocesar los datos por período;  donde las consultas por organización las hacen FinOps, Soporte y Producto sobre Cassandra/AstraDB, no sobre los archivos del data lake.
 
 ## Por qué los nulos de carbon_kg no van a Quarantine
 
