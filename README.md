@@ -10,11 +10,10 @@ El objetivo del proyecto es construir un pipeline de datos que permita limpiar, 
 Automatizar el procesamiento de datos y la generación de información analítica para reducir tareas manuales, mejorar la calidad de los datos y ofrecer información actualizada tanto para análisis operativos como estratégicos.
 
 Los objetivos específicos son:
-- Reducir el tiempo necesario para generar reportes.
-- Minimizar errores mediante reglas de calidad de datos.
-- Disponibilizar información confiable para FinOps, Soporte y Producto.
-- Entregar métricas en tiempo casi real
-- Generar reportes diarios y mensuales para análisis consolidados.
+- Reducir el tiempo de generación de reportes de horas a minutos.
+- Reducir la tasa de registros inválidos por debajo del 5% del total procesado.
+- Poner la información disponible en menos de 30 minutos desde que llegan los datos.
+- Entregar métricas con una latencia máxima de 60 segundos desde la llegada del evento.
 
 ## Arquitectura
 La solución implementa una Arquitectura Lambda que combina:
