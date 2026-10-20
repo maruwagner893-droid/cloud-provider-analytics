@@ -17,7 +17,7 @@ Como objetivos concretos para saber si esto funcionó:
 ## 2. Justificación de la necesidad de Big Data mediante volumen, velocidad, variedad, veracidad y valor
 ### Volumen:
 Por la cantidad de datos que se manejan.
-Hoy el dataset tiene 80 organizaciones y en 60 días ya se acumularon 43.200 registros solo de eventos de uso, más tickets (1000), usuarios (800) y recursos (400). Pero en producción real serían miles de organizaciones, no 80, y cada una generando eventos todo el tiempo. Con ese crecimiento el volumen escala a decenas de millones de registros, y ahí es donde una solución tradicional deja de funcionar.
+Hoy el dataset tiene 80 organizaciones y en 60 días ya se acumularon 43.200 registros solo de eventos de uso, más tickets (1000), usuarios (800) y recursos (400). Pero en producción real serían miles de organizaciones, no 80, y cada una generando eventos todo el tiempo. Con  estos  datos actuales hay unos 9 eventos por organización por día, así que con 5.000 organizaciones serían unos 16 millones de eventos al año.
 
 ### Velocidad:
 Por que la tabla mas pequeña es una tabla de refencia y la otra es de un historial o logeo.
@@ -102,6 +102,7 @@ Ninguna tabla muestra filas duplicadas.
 #### Riesgo 1: Costos negativos en billing_monthly y usage_events_stream
 
 El primer riesgo es en  billing_monthly donde encontramos 13 subtotales negativos, el más bajo de -1671.83. Estos valores probablemente no son errores, sino créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso. Si los eliminamos, el gasto neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos. Lo que apoya que son créditos y no errores es el impuesto: en los 13 registros negativos, el tax siempre es el 21% del valor absoluto del subtotal. Si fueran errores de carga, el impuesto sería inconsistente. Por eso los mantenemos en el pipeline marcados como créditos y no los mandamos a Quarantine.
+Ademas el README del dataset advierte que hay que esperar costos negativos y outliers como parte de la limpieza, por lo que no se puede descartar que alguna de estas facturas sea un error; por eso quedan marcadas para poder revisarlas.
 
 En usage_events_stream encontramos cost_usd_increment con valores hasta -154.46. Acá lo consideramos una anomalía porque un recurso de nube no puede generar un consumo físico negativo.
 
@@ -224,7 +225,7 @@ Los eventos de uso consideramos que se organicen por year/month. debido a que co
 
 Para que un registro pase de una zona a la siguiente se aplican estas reglas: de Landing a Bronze, el archivo tiene que poder leerse sin errores; si está corrupto no se ingesta. De Bronze a Silver, el registro tiene que tener los tipos de dato correctos y las columnas de metadatos:ingest_ts, source_file; si no cumple va a Quarantine. De Silver a Gold, el registro tiene que estar limpio: nulos tratados, moneda normalizada y joins aplicados; si no cumple va a Quarantine. De Gold a Cassandra, las métricas no pueden tener nulos en los campos clave.
 
-Luego en quarantine se guarda el registro original sin modificarse, junto con los metadatos ingest_ts y source_file y una columna con el motivo del rechazo. De esa forma el equipo puede revisar cada caso durante los 90 días de retención y decidir si lo corrige o lo descarta.
+Luego en Quarantine se guarda el registro original sin modificar, junto con los metadatos ingest_ts y source_file y una columna con el motivo del rechazo . De esa forma el equipo puede revisar cada caso durante los 90 días de retención antes del descarte definitivo.
 
 En Landing los datos se conservan 30 días, ya que una vez ingeridos en Bronze los archivos crudos no son necesarios; si hay que reprocesar, Bronze es el punto de partida. En Bronze y Silver se mantiene una retención de 1 año, lo que permite reprocesar desde Bronze ante errores en la lógica de transformación o recalcular métricas de Gold sin volver a la capa de limpieza. En Gold los datos se conservan indefinidamente, dado que son las métricas de negocio consultadas continuamente por las tres áreas. En Quarantine la retención es de 90 días, que es el período disponible para revisión manual antes del descarte definitivo.
 
