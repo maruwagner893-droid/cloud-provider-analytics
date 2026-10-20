@@ -256,12 +256,13 @@ Para el streaming definimos un watermark de 10 minutos sobre el campo timestamp 
 Por que al explorar los datos vimos que los 120 archivo no están ordenados cronológicamente: Dado que cada archivo abarca casi todo el rango, del 03/07/2025 al 31/08/2025. Si los procesáramos en el orden en que están, cerca del 99,1 % de los eventos se marcaría como tardío y el stream quedaría casi vacío. Por eso ordenamos los eventos por timestamp y los enviamos en ese orden.
 
 Elegimos 10 minutos como decisión de diseño para  que el sistema tenga una funcion continua, donde los eventos llegarían casi en orden y con poca demora. Es un valor intermedio: por  lo que es bastante amplio para aceptar eventos que llegan apenas tarde, y lo bastante corto para que Spark no acumule estado de más. Con 1 hora guardaría en memoria eventos de la última hora sin necesidad, y con 1 minuto correríamos el riesgo de descartar eventos válidos que llegaron un poco tarde. Como el dataset no permite medir el retraso real de llegada, este valor se ajustará en la implementación si hace falta.
+
 ## 9. Flujo MapReduce de referencia
 
 En la etapa Map, PySpark distribuye los registros de las fuentes de datos entre los nodos del cluster. Cada nodo procesa su parte y formula los pares clave-valor, en el proyecto se tienen los siguientes casos:
 billing_monthly → (org_id, (subtotal - COALESCE(credits, 0)) × exchange_rate_to_usd)
 support_tickets → (org_id, 1)
-usage_events_stream → (org_id + service, value)
+usage_events_stream → (org_id + service + metric, value)
 usage_events_stream (solo service = "genai") → (org_id, genai_tokens)
 En donde cada nodo del cluster procesa una parte de esos archivos en paralelo.
 
@@ -273,11 +274,11 @@ Por último en Reduce: PySpark agrega los valores agrupados y produce las métri
 
 En billing_monthly tenemos facturas en distintas monedas (USD, ARS, EUR). Para saber cuánto gastó cada organización en total, PySpark hace esto:
 
-Map: lee cada factura y multiplica el subtotal por el tipo de cambio para convertirlo a USD. El resultado es un par (org_id, monto_en_usd). Como ejemplo, org_xaji0y6d tiene 3 facturas. Las tres se multiplican por su exchange_rate_to_usd, incluso las de USD, porque su tasa no es exactamente 1.0: 1133.34 × 0.97684 = 1107.09 USD y 619.17 × 1.00331 = 621.22 USD. La tercera viene en ARS: 540.79 × 0.00160 = 0.87 USD.
+Map: lee cada factura, descuenta los créditos, donde si credits es nulo vale 0 y multiplica el resultado por el tipo de cambio para convertirlo a USD. El resultado es un par:org_id, monto_en_usd. Como ejemplo tenemos que org_xaji0y6d tiene 3 facturas. Las tres se multiplican por su exchange_rate_to_usd, incluso las de USD, porque su tasa no es exactamente 1.0: 1133.34 × 0.97684 = 1107.09 USD y 619.17 × 1.00331 = 621.22 USD. La tercera viene en ARS: 540.79 × 0.00160 = 0.87 USD.
 
 Shuffle: junta todas las facturas de org_xaji0y6d en un mismo nodo, todas las de org_pbhsahxt en otro, etc.
 
-Reduce: suma todos los montos de cada organización. org_xaji0y6d tenía tres facturas: 1107.09 USD + 621.22 USD + 0.87 USD = 1729.18 USD total.
+Reduce: suma todos los montos de cada organización. ya que org_xaji0y6d tenía tres facturas: 1107.09 USD + 621.22 USD + 0.87 USD = 1729.18 USD total.
 
 Grano final: al terminar tenemos una sola fila por organización con su costo total en USD.
 
