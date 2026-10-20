@@ -263,9 +263,10 @@ Elegimos 10 minutos como decisión de diseño para  que el sistema tenga una fun
 ## 9. Flujo MapReduce de referencia
 
 En la etapa Map, PySpark distribuye los registros de las fuentes de datos entre los nodos del cluster. Cada nodo procesa su parte y formula los pares clave-valor, en el proyecto se tienen los siguientes casos:
-billing_monthly → (org_id, subtotal × exchange_rate_to_usd)
+billing_monthly → (org_id, (subtotal - COALESCE(credits, 0)) × exchange_rate_to_usd)
 support_tickets → (org_id, 1)
-usage_events_stream → (org_id + service, genai_tokens)
+usage_events_stream → (org_id + service, value)
+usage_events_stream (solo service = "genai") → (org_id, genai_tokens)
 En donde cada nodo del cluster procesa una parte de esos archivos en paralelo.
 
 Luego en Shuffle: PySpark redistribuye los pares por clave y todos los registros de la misma organización se juntan en el mismo nodo.
@@ -284,7 +285,8 @@ Reduce: suma todos los montos de cada organización. org_xaji0y6d tenía tres fa
 
 Grano final: al terminar tenemos una sola fila por organización con su costo total en USD.
 
-Validación: total_usd no puede ser nulo; si credits es nulo se trata como 0. No se puede verificar sumando los subtotales originales porque están en monedas distintas. Para validar se recalcula el total de una organización fila por fila, subtotal × exchange_rate_to_usd, y se verifica que coincida con el total_usd que produjo el Reduce. Además se controla que ninguna tasa sea nula o cero.
+Validación: Por lo que total_usd no puede ser nulo. Dado a que no se puede verificar sumando los subtotales originales porque están en monedas distintas. Para validar se recalcula fila por fila: (subtotal - COALESCE(credits, 0)) × exchange_rate_to_usd, y se verifica que el resultado coincida con el total_usd que produjo el Reduce. Además se controla que ninguna tasa sea nula o cero.
+
 ## 10. Supuestos y riesgos
 ### Supuestos
 
