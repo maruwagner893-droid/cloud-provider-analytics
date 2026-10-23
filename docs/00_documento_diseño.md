@@ -294,7 +294,7 @@ Se asume que para poder unir con joins distintas tablas es necesario tener un ca
 ### Riesgos
 El diseño actual no contempla corregir datos en cuarentena, ya que se los separa para no contaminar; caso contrario los datos serían inconsistentes.
 
-El campo credits tiene un 57% de valores nulos y no está definido en Silver cómo tratarlos, lo que puede afectar los resultados en Gold siendo estos poco confiables.
+El campo credits tiene un 57% de valores nulos. Se definió que si credits es nulo se trata como 0 en la fórmula del Map, de forma que el total siempre tiene un número válido. Esto puede afectar los resultados en Gold.
 
 Si aparece una versión 3 del schema, se tendrá que volver a modificar las capas para poder limpiar y mostrar los datos, es decir que se tendría que tocar todo el proceso.
 
@@ -304,7 +304,7 @@ Con la partición por year/month, los 43.200 eventos quedan en 2 carpetas de 20.
 
 Para el riesgo 1 tomamos que  la mitigación habitual es generar un reporte o log con los registros rechazados, para que alguien del equipo pueda revisarlos manualmente y decidir si corregirlos o descartarlos definitivamente.
 
-Para el riesgo  de credits con el 57% de nulos, la mitigación  considerada es definir una regla en Silver: si credits es nulo, tratarlo como 0. Así Gold siempre tiene un número válido para calcular, pero antes habría que confirmar con el área de FinOps si eso tiene sentido de negocio antes de de poder aplicarlo.
+Para el riesgo  de credits con el 57% de nulos, la mitigación  considerada  es tratar credits nulo como 0 en la fórmula del Map: (subtotal - COALESCE(credits, 0)) × exchange_rate_to_usd. Así Gold siempre recibe un número válido. Esta decisión está pendiente de confirmar con FinOps.
 
 Como mitigación del riesgo 3, se podría agregar una capa que funcione como interfaz común a todas las versiones, de forma que al aparecer una nueva versión solo sea necesario modificar esa capa y no todo el proceso.
 
