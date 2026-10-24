@@ -1,1 +1,4 @@
-
+.env
+secure-connect*.zip
+data/replay/
+data/checkpoints/
