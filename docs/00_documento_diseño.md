@@ -352,4 +352,15 @@ Construir la capa Gold: se generan las métricas de negocio a partir de los dato
 
 Carga en Cassandra/AstraDB y validacion del pipeline: se vuelcan los datasets de Gold en la base de datos y se verifica que las tres areas (FinOps, Soporte y Producto) puedan consultar sus métricas.
 
+## Alcance de la etapa 2 y lo que queda para la entrega final
+
+En esta etapa implementamos el recorrido completo para  el uso de servicios de la nube. Ingestamos tres maestros en Bronze (customers_orgs, users y billing_monthly) con esquema explícito, deduplicación por clave y las columnas ingest_ts y source_file. Donde los eventos de usage_events_stream los procesamos con Structured Streaming, lo que nos permitio leer un archivo por vez y simular la llegada continua de eventos en micro-lotes. Definimos  tambien el esquema de cada columna antes de leer, aplicamos un watermark de 10 minutos para descartar los eventos que llegan demasiado tarde, eliminamos los eventos repetidos por event_id y usamos un checkpoint para que Spark recuerde qué archivos ya procesó. Probamos dos casos: con los archivos desordenados se descartaba el 98,3 % de los eventos por tardíos, por lo cual decidimos ordenarlos por timestamp antes de enviarlos; y al volver a ejecutar el proceso, o al recibir un archivo repetido, la cantidad se mantuvo en 43.200 eventos, sin duplicados. Todas las capas se guardan en formato Parquet, y los eventos se separan en una carpeta por mes:(year/month).
+
+En Silver limpiamos los eventos y los unimos con customers_orgs. Aplicamos reglas de calidad: los eventos sin event_id o con costo menor a -0,01 van a Quarantine  y la unidad vacía se completa y se marca con unit_imputed. Además calculamos las features requests, cpu_hours y storage_gb_hours a partir de la métrica de cada evento.
+
+En Gold armamos el mart org_daily_usage_by_service, con grano diario por organización y servicio, y las métricas daily_cost_usd, requests, cpu_hours, storage_gb_hours, genai_tokens y carbon_kg. Lo cargamos en Cassandra/AstraDB y ejecutamos dos consultas CQL: costos y requests diarios de una organización en un rango de fechas, y servicios con más costo en los últimos 14 días.
+
+Quedan para la entrega final las demás tablas (resources, support_tickets, marketing_touches y nps_surveys), la limpieza de los maestros en Silver (incluida la conversión de moneda a USD y el NPS inválido), el cálculo de billing de la sección 9 y los marts de tickets, NPS, revenue y tokens de GenAI. También queda pendiente el componente analítico: vamos a detectar anomalías de costo con z-score sobre daily_cost_usd por organización y servicio, y guardar el resultado en un mart de anomalías de costo. Todo eso forma parte del diseño, pero todavía no está implementado.
+
+
 
