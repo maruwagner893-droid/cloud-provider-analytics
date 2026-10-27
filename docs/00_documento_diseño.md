@@ -245,7 +245,7 @@ En Landing los datos se conservan 30 días, ya que una vez ingeridos en Bronze l
 1. Los eventos de uso llegan continuamente como archivos JSONL.
 2. Se copian tal cual a Landing.
 3. PySpark Structured Streaming los lee en tiempo real, tipifica, agrega `ingest_ts` y `source_file`, y guarda en Parquet en Bronze Stream.
-4. El mismo proceso de Structured Streaming aplica filtros, deduplica por event_id para no procesar el mismo evento dos veces, y detecta anomalías en Silver Stream. Los eventos que llegan después del watermark se descartan definitivamente. Las anomalías se envían a Cuarentena.
+4. El mismo proceso de Structured Streaming deduplica por event_id en Bronze para no procesar el mismo evento dos veces, y aplica filtros y detecta anomalías en Silver Stream. Los eventos que llegan después del watermark se descartan definitivamente. Las anomalías se envían a Cuarentena.
 5. Desde Silver Stream converge con el camino batch en Gold.
 6. Desde Gold se escribe en Cassandra/AstraDB.
 
