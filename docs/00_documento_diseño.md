@@ -236,7 +236,7 @@ En Landing los datos se conservan 30 días, ya que una vez ingeridos en Bronze l
 1. Los datos nacen como archivos CSV: clientes, usuarios, recursos, tickets, billing, NPS y marketing.
 2. Esos archivos se copian tal cual a Landing, sin modificarse nada.
 3. PySpark Batch los lee de Landing, les pone el tipo de dato correcto, saca los duplicados por clave, agrega las columnas ingest_ts y source_file, y los guarda en Parquet en Bronze.
-4.PySpark toma lo de Bronze, lo lleva a Silver y ahí arregla nulos, une tablas y normaliza la moneda a USD. Los registros inválidos se envían a Cuarentena.
+4. PySpark toma lo de Bronze, lo lleva a Silver y ahí arregla nulos, une tablas y normaliza la moneda a USD. Los registros inválidos se envían a Cuarentena.
 5. PySpark toma lo de Silver, calcula las métricas de negocio y las guarda en Gold.
 6. Desde Gold, PySpark escribe los resultados en Cassandra/AstraDB.
 
