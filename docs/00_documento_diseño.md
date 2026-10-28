@@ -203,7 +203,7 @@ Luego para la capa de presentacion del cliente todos los datos  convergen en la 
 | conservar datos crudos sin modificar | Copia directa | Landing | Veracidad |
 | Clasificar los campos y agregar metadatos de ingesta | PySpark | Bronze | Veracidad |
 | Limpiar nulos, joins y normalizar moneda | PySpark Batch | Silver | Veracidad |
-| Unificar schema v1/v2 | PySpark Streaming |Silver Stream | Variedad |
+| Unificar schema v1/v2 | PySpark Streaming |Bronze Stream | Variedad |
 | Costos y facturación por organización y servicio | PySpark Batch | Gold | Valor |
 | Volumen de tickets, SLA y CSAT por org | PySpark Batch | Gold | Valor |
 | Uso, requests y genai_tokens por servicio | PySpark Batch | Gold | Valor |
