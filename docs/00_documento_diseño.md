@@ -260,7 +260,7 @@ Elegimos 10 minutos como decisión de diseño para  que el sistema tenga una fun
 En la etapa Map, PySpark distribuye los registros de las fuentes de datos entre los nodos del cluster. Cada nodo procesa su parte y formula los pares clave-valor, en el proyecto se tienen los siguientes casos:
 billing_monthly → (org_id, (subtotal - COALESCE(credits, 0)) × exchange_rate_to_usd)
 support_tickets → (org_id, 1)
-usage_events_stream → (org_id + service + metric, value)
+usage_events_stream → (org_id + usage_date + service, value)
 usage_events_stream (solo service = "genai") → (org_id, genai_tokens)
 En donde cada nodo del cluster procesa una parte de esos archivos en paralelo.
 
