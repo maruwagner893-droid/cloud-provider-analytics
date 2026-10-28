@@ -8,6 +8,8 @@ Kappa solo utiliza procesamiento en tiempo real (streaming), con un único camin
 ## Por qué los costos negativos de billing_monthly no van a Quarantine
 
 En billing_monthly encontramos 13 facturas con subtotal negativo, la más baja es de -1671.83. Decidimos mantenerlas en el pipeline marcadas como créditos y no enviarlas a Quarantine. Probablemente son créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso, y el impuesto no la confirma: en los 13 registros negativos, el tax siempre es el 21% del valor absoluto del subtotal, un patrón compatible tanto con créditos como con un cambio de signo. Si las enviáramos a Quarantine, el gasto neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos; además, el diseño no corrige los datos en cuarentena, así que quedarían afuera de los totales.
+Concretamente, solo van a Quarantine los eventos con cost_usd_increment menor a -0,01 que son en total 
+211 eventos, los 5 eventos con costo entre -0,01 y 0 pasan a Silver.
 
 ## Por qué los costos negativos de usage_events_stream sí van a Quarantine
 
