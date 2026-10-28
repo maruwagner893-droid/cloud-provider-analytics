@@ -17,8 +17,8 @@ flowchart TD
     end
 
     subgraph STREAM["⚡ Capa Streaming — Patrón Lambda"]
-        BRZ_S["Bronze Stream\nIngesta JSONL · Parquet"]
-        SLV_S["Silver Stream\nFiltros · Idempotencia · Anomalías\nEsquema v1/v2 unificado"]
+        BRZ_S["Bronze Stream\nIngesta JSONL · Parquet\nEsquema v1/v2 unificado"]
+        SLV_S["Silver Stream\nFiltros · Idempotencia · Anomalías"]
     end
 
     subgraph GZ["🥇 Gold Zone — Métricas de Negocio"]
@@ -64,6 +64,6 @@ flowchart TD
     GOV -.->|aplica a todas las zonas| BATCH
     GOV -.->|aplica a todas las zonas| STREAM
     GOV -.->|aplica a todas las zonas| GZ
-    GOV -.->|aplica a todas las zonas| SRV
+    GOV -.->|aplica a todas las zonas| SRV   
 ```
 
