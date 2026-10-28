@@ -214,9 +214,9 @@ Luego para la capa de presentacion del cliente todos los datos  convergen en la 
 ## 7. Diseño del Data Lake
 El Data Lake se organiza en cinco zonas: Landing, Bronze, Silver y Gold como zonas progresivas, y Quarantine para los registros inválidos.
 
-En landing se guardan los datos como están, sin modificarse. Bronze toma esos datos y los tipifica, agregamos columnas extra para saber cuándo y de dónde vinieron, como por ejemplo ingest_ts y source_file.
+En landing se guardan los datos como están, sin modificarse. Bronze toma esos datos, los tipifica y saca los duplicados por clave, y agregamos columnas extra para saber cuándo y de dónde vinieron, como por ejemplo ingest_ts y source_file.
 
-En Silver limpiamos los datos: se sacan los duplicados si tienen, se arreglan los nulos. 
+En Silver limpiamos los datos: se arreglan los nulos.
 Por último, en Gold se producen las métricas finales para que los usuarios de FinOps, Soporte y Producto puedan consultarlas.
 
 Los archivos en Bronze, Silver y Gold se guardan en formato Parquet en vez de CSV porque se guardan los datos por columnas y comprimidos. Si PySpark necesita solo algunos de esos datos, lee solo la columna y no el archivo completo. En el proyecto tenemos 43.200 eventos y múltiples tablas, y con esto lo podemos hacer más rápido y que ocupe menos espacio.
