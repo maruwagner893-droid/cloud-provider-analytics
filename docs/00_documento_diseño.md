@@ -308,7 +308,7 @@ Para el riesgo  de credits con el 57% de nulos, la mitigación  considerada  es 
 
 Como mitigación del riesgo 3, se podría agregar una capa que funcione como interfaz común a todas las versiones, de forma que al aparecer una nueva versión solo sea necesario modificar esa capa y no todo el proceso.
 
-Por ultimo para el riesgo de archivos pequeños, se consideraron dos frentes: por un lado tenemos el crecimiento del sistema en producción, más organizaciones y más meses de datos donde cada partición va a acumular muchos más eventos y los archivos van a ser más grandes; y  por otro lado, se aplica coalesce() antes de escribir cada partición en Parquet para consolidar los archivos pequeños en uno solo, reduciendo el tiempo que Spark gasta abriendo y cerrando archivos innecesariamente.
+Por ultimo para el riesgo de archivos pequeños, se consideraron dos frentes: por un lado tenemos el crecimiento del sistema en producción, con más organizaciones y más meses de datos donde cada partición va a acumular muchos más eventos y los archivos van a ser más grandes; y  por otro lado, se aplica coalesce() antes de escribir los maestros en Bronze y Gold en Parquet para poder consolidar los archivos pequeños en uno solo, reduciendo asi el tiempo que Spark gasta abriendo y cerrando archivos innecesariamente. En el streaming todavía no se aplica.
 
 ## 11. Estimación preliminar
 Esta sección tiene tres cosas: los roles del equipo, el tiempo estimado para cada tarea, y el esfuerzo total.
