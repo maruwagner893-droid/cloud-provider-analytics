@@ -1,6 +1,6 @@
 # Registro de calidad de datos
 
-En la etapa 2 se implementó la limpieza de usage_events_stream. Para las demás tablas este registro describe las reglas definidas: customers_orgs, users y billing_monthly ya están tipificadas en Bronze, y la limpieza en Silver, junto con resources, support_tickets, marketing_touches y nps_surveys, queda para la entrega final.
+En la etapa 2 del proyecto implemetamos la limpieza de usage_events_stream. Ppr que para las demás tablas este registro describe las reglas definidas: customers_orgs, users y billing_monthly ya están tipificadas en Bronze, y la limpieza en Silver, junto con resources, support_tickets, marketing_touches y nps_surveys, queda para la entrega final.
 
 ## customers_orgs
 Los nulos en nps_score (13.75%) se mantienen como nulos en Silver para no afectar el promedio. El valor 101, que está fuera del rango válido de NPS (-100 a 100), se envía a Quarantine. La columna signup_date se convierte a datetime en Bronze.
