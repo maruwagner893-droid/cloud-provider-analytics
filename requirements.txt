@@ -2,4 +2,4 @@ pandas
 matplotlib
 jupyter
 pyspark
-
+cassandra-driver
