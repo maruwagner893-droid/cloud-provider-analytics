@@ -48,7 +48,7 @@ cloud-provider-analytics/
 
 ## Data Lake
 - **Landing:** recepción inicial de datos.
-- **Bronze:** almacenamiento de datos crudos.
+- **Bronze:** datos tipificados, sin duplicados y con metadatos de ingesta como:ingest_ts y source_file.
 - **Silver:** datos limpios y estandarizados.
 - **Gold:** métricas y datasets de negocio.
 - **Quarantine:** registros invalidos por problemas de calidad.
