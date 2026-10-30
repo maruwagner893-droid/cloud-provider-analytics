@@ -37,7 +37,7 @@ cloud-provider-analytics/
 │   └── Documentación y diseño de la solución
 │
 ├── notebooks/
-│   └── Exploración y análisis de datos
+│   └── Exploración de datos y pipeline de la etapa 2
 │
 ├── src/
 │   └── Pipelines y transformaciones en PySpark
