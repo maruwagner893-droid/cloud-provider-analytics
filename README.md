@@ -73,7 +73,7 @@ La documentación detallada de diseño se encuentra en: `docs/`
 Capturas de pantalla, validaciones y decisiones tomadas durante el desarrollo: `evidence/`
 
 ## Cómo ejecutar
-1. Clonar el repositorio
-2. Copiar `cloud_provider_challenge_dataset_v1.zip` en la carpeta `data/`
-3. Instalar dependencias: `pip install -r requirements.txt`
-4. Abrir `notebooks/Exploracion_Cloud_Provider_Analytics.ipynb` y ejecutar todas las celdas
+1. Clonar el repositorio (el dataset ya está en la carpeta data/)
+2. Abrir notebooks/02_pipeline_etapa2.ipynb en Google Colab
+3. Para Cassandra: subir el secure connect bundle de AstraDB y guardar el token en los Secretos de Colab con el nombre ASTRA_TOKEN
+4. Ejecutar todas las celdas
