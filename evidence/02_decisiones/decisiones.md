@@ -7,7 +7,7 @@ Kappa solo utiliza procesamiento en tiempo real (streaming), con un único camin
 
 ## Los costos negativos de billing_monthly no van a Quarantine
 
-En billing_monthly encontramos 13 facturas con subtotal negativo, la más baja es de -1671.83. Decidimos mantenerlas en el pipeline marcadas como créditos y no enviarlas a Quarantine. Probablemente son créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso, y el impuesto no la confirma: en los 13 registros negativos, el tax siempre es el 21% del valor absoluto del subtotal, un patrón compatible tanto con créditos como con un cambio de signo. Si las enviáramos a Quarantine, el gasto neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos; además, el diseño no corrige los datos en cuarentena, así que quedarían afuera de los totales.
+En billing_monthly encontramos 13 facturas con subtotal negativo dinde la más baja es de -1671.83. Decidimos mantenerlas en el pipeline marcadas como créditos y no enviarlas a Quarantine por que probablemente son créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso, y el impuesto no la confirma: en los 13 registros negativos, el tax siempre es el 21% del valor absoluto del subtotal, esto es un patrón compatible tanto con créditos como con un cambio de signo. Si las enviáramos a Quarantine, el gasto neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos; además, el diseño no corrige los datos en cuarentena, así que quedarían afuera de los totales.
 Concretamente, solo van a Quarantine los eventos con cost_usd_increment menor a -0,01 que son en total 
 211 eventos, los 5 eventos con costo entre -0,01 y 0 pasan a Silver.
 
@@ -17,7 +17,7 @@ En usage_events_stream encontramos cost_usd_increment con valores hasta -154.46.
 
 ## Se particiona por year/month
 
-Decidimos particionar los eventos solo por year/month, que deja 2 carpetas de 20.880 y 22.320 eventos, y no particionar las tablas CSV porque tienen pocas filas.  por que la partición por year/month sirve para procesar y reprocesar los datos por período;  donde las consultas por organización las hacen FinOps, Soporte y Producto sobre Cassandra/AstraDB, no sobre los archivos del data lake.
+Particionamos los eventos solo por year/month, lo cual deja 2 carpetas de 20.880 y 22.320 eventos, y no particionamos las tablas CSV porque tienen pocas filas.Por que la partición por year/month sirve para procesar y reprocesar los datos por período;  donde las consultas por organización las hacen FinOps, Soporte y Producto sobre Cassandra/AstraDB, no sobre los archivos del data lake.
 
 ## Los nulos de carbon_kg no van a Quarantine
 
