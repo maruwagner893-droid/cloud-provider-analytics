@@ -37,7 +37,7 @@ Se tomo la decison de que la tabla org_daily_usage_by_service en Cassandra tenga
 
 ## Los eventos sin unit no van a Quarantine
 
-Completamos el campo unit en los eventos que lo traen vacío y no enviarlo a Quarantine. En los datos pudimos ver que cada métrica siempre usa la misma unidad: donde requests es count, cpu_hours es hours y storage_gb_hours es gb_hours. Por lo que con esa base asumimos que los eventos sin unidad usan la misma que el resto de su métrica y dejamos la marca unit_imputed para saber cuáles se completaron. Esto es una suposición que sale de los datos, no de una especificación del proveedor.Ademas si los enviáramos a Quarantine junto con los costos negativos quedaría afuera el 5,28 % de los eventos y no cumpliríamos el objetivo que habíamos definido de menos del 5 %.
+Completamos el campo unit en los eventos que lo traen vacío y no lo enviamos a Quarantine. En los datos pudimos ver que cada métrica siempre usa la misma unidad: donde requests es count, cpu_hours es hours y storage_gb_hours es gb_hours. Por lo que con esa base asumimos que los eventos sin unidad usan la misma que el resto de su métrica y dejamos la marca unit_imputed para saber cuáles se completaron. Esto es una suposición que sale de los datos, no de una especificación del proveedor.Ademas si los enviáramos a Quarantine junto con los costos negativos quedaría afuera el 5,28 % de los eventos y no cumpliríamos el objetivo que habíamos definido de menos del 5 %.
 
 ## Los duplicados se sacan en Bronze y no en Silver
 
