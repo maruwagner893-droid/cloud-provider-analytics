@@ -17,7 +17,7 @@ En usage_events_stream encontramos cost_usd_increment con valores hasta -154.46.
 
 ## Se particiona por year/month
 
-Particionamos los eventos solo por year/month, lo cual nos deja 2 carpetas de 20.880 y 22.320 eventos, y los 3 maestros que pasamos a Bronze  que son :clientes, usuarios y billing, también lo guardamos particionados, porque la consigna nos pide Parquet particionado.
+Particionamos los eventos solo por year/month, lo cual nos deja 2 carpetas de 20.880 y 22.320 eventos, y los 3 maestros que pasamos a Bronze  que son :clientes, usuarios y billing, también lo guardamos particionados, porque la consigna nos pide Parquet particionado y ademas sirve para procesar y reprocesar los datos por período,  donde las consultas por organización las hacen FinOps, Soporte y Producto sobre Cassandra/AstraDB, no sobre los archivos del data lake.
 
 ## Los nulos de carbon_kg no van a Quarantine
 
