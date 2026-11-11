@@ -49,3 +49,10 @@ Se calcula Gold en batch y no en streaming.Esto figuraba como streaming en el do
 ## El esquema v1/v2 se unifica en Bronze
 
 Unificamos el esquema v1/v2 al leer los eventos en Bronze. En el diseño original estaba en Silver, pero el stream necesita que le definamos el esquema antes de leer, y ahí incluimos carbon_kg y genai_tokens. Por lo cual los eventos v1 no traen esos campos y quedan en nulo.
+
+## Las anomalías de costo se detectan con un método por percentiles (IQR)
+
+Para el componente analítico decidimos por el mart cost_anomaly_mart, con grano org_id, usage_date y service, a partir de la columna daily_cost_usd del mart org_daily_usage_by_service. Por ello usamos un método por percentiles que es el rango intercuartílico (IQR),  para cada organización y servicio.Lo elegimos frente al z-score porque los percentiles no se ven afectados por los propios picos, mientras que el promedio y el desvío estándar sí aumentan cuando hay un pico, y eso puede ocultar otros.
+Ademas solo marcamos los días por encima del límite superior, porque buscamos los picos de costo que menciona la consigna. Los días por debajo del límite inferior son costos cercanos a cero,  por lo cual no representan un riesgo para FinOps. Con este criterio se marcan 196 de los 11.050 días que es el 1,77 %. Cada combinación de organización y servicio tiene entre 24 y 60 días de datos, por lo que los percentiles se calculan sobre suficientes valores.
+
+Como limitaciones, el cálculo usa todo el período, incluidos los días posteriores al día evaluado, por lo que sirve para el análisis histórico y no como alerta en tiempo real. Además, el dataset no tiene anomalías marcadas de antemano, así que no podemos medir cuántas acierta: lo que reportamos es la cantidad de días marcados y su costo comparado con el límite de su organización y servicio.
