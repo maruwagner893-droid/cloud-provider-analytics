@@ -18,6 +18,7 @@ Como objetivos concretos para saber si esto funcionó:
 ### Volumen:
 Por la cantidad de datos que se manejan.
 Hoy el dataset tiene 80 organizaciones y en 60 días ya se acumularon 43.200 registros solo de eventos de uso, más tickets (1000), usuarios (800) y recursos (400). Pero en producción real serían miles de organizaciones, no 80, y cada una generando eventos todo el tiempo. Con  estos  datos actuales hay unos 9 eventos por organización por día, así que con 5.000 organizaciones serían unos 16 millones de eventos al año.
+Por lo cual decidimos el volumen medimos el tamaño real de los datos: donde tenemos 120 archivos JSONL  para 43.200 eventos, unos 300 bytes por evento. Hoy ese volumen es chico, pero no es fijo, yaque los eventos se generan todo el tiempo y la cantidad de organizaciones crece, por lo que el volumen aumenta de forma sostenida. Por eso elegimos Spark: este nos permite procesar los datos de manera distribuida e incremental a medida que llegan, y escalar agregando recursos cuando el volumen crezca, sin tener que cambiar la solución.
 
 ### Velocidad:
 Por que la tabla mas pequeña es una tabla de refencia y la otra es de un historial o logeo.
