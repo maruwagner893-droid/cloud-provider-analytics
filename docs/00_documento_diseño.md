@@ -174,7 +174,7 @@ flowchart TD
     SLV_B -->|Registros inválidos| Q
     SLV_S -->|Anomalías| Q
     SLV_B -->|PySpark| GLD
-    SLV_S -->|PySpark| GLD
+    SLV_S -->|Lectura batch| GLD
     GLD -->|PySpark write| CASS
     CASS --> FO
     CASS --> SP
