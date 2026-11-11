@@ -28,6 +28,7 @@ Por que parquet guarda los datos por columnas y comprimidos.Si PySpark necesita 
 ## El watermark es de 10 minutos
 
 Decidimos usar un watermark de 10 minutos sobre el campo timestamp de usage_events_stream, y ordenar los eventos por timestamp antes de enviarlos al stream. El watermark le dice a Spark hasta cuándo esperar eventos que llegan tarde. Elegimos 10 minutos porque es un valor intermedio para que el sistema funcione de forma continua, ya que los eventos llegarían casi en orden: con 1 hora Spark guardaría en memoria eventos de la última hora sin necesidad, y con 1 minuto correríamos el riesgo de descartar eventos válidos que llegaron un poco tarde. El orden previo es necesario porque los 120 archivos no están ordenados cronológicamente: cada uno abarca casi todo el rango, y si los procesáramos tal como están, cerca del 98,3 % de los eventos se marcaría como tardío.
+Ademas para el manejo de late data hicimos una prueba controlada enviando un evento con un timestamp anterior al watermark, y verificamos que Spark lo descarta y lo registra en la métrica .La evidencia se ecunetra en en evidence/04_pipeline_spark.
 
 ## La tabla de Cassandra guarda juntas las filas de cada organización
 
