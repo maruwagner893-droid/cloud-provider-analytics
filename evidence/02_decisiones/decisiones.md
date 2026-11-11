@@ -8,16 +8,14 @@ Kappa solo utiliza procesamiento en tiempo real (streaming), con un único camin
 ## Los costos negativos de billing_monthly no van a Quarantine
 
 En billing_monthly encontramos 13 facturas con subtotal negativo dinde la más baja es de -1671.83. Decidimos mantenerlas en el pipeline marcadas como créditos y no enviarlas a Quarantine por que probablemente son créditos del proveedor de nube, como devoluciones o ajustes por compromisos de uso, y el impuesto no la confirma: en los 13 registros negativos, el tax siempre es el 21% del valor absoluto del subtotal, esto es un patrón compatible tanto con créditos como con un cambio de signo. Si las enviáramos a Quarantine, el gasto neto mensual quedaría inflado y FinOps estaría tomando decisiones sobre números incorrectos; además, el diseño no corrige los datos en cuarentena, así que quedarían afuera de los totales.
-Concretamente, solo van a Quarantine los eventos con cost_usd_increment menor a -0,01 que son en total 
-211 eventos, los 5 eventos con costo entre -0,01 y 0 pasan a Silver.
-
 ## Los costos negativos de usage_events_stream sí van a Quarantine
 
-En usage_events_stream encontramos cost_usd_increment con valores hasta -154.46. A diferencia de billing, acá no tiene sentido de negocio: un recurso de nube no puede generar un consumo físico negativo. Por eso la tratamos  como anomalías yla enviamos  a Quarantine.
-
+En usage_events_stream encontramos cost_usd_increment con valores hasta -154.46. A diferencia de billing, acá no tiene sentido de negocio: un recurso de nube no puede generar un consumo físico negativo, por eso la tratamos  como anomalías yla enviamos  a Quarantine.Concretamente, solo van a Quarantine los eventos con cost_usd_increment menor a -0,01 que son en total 211 eventos; los 5 eventos con costo entre -0,01 y 0 pasan a Silver.
 ## Se particiona por year/month
 
-Particionamos los eventos solo por year/month, lo cual nos deja 2 carpetas de 20.880 y 22.320 eventos, y los 3 maestros que pasamos a Bronze  que son :clientes, usuarios y billing, también lo guardamos particionados, porque la consigna nos pide Parquet particionado y ademas sirve para procesar y reprocesar los datos por período,  donde las consultas por organización las hacen FinOps, Soporte y Producto sobre Cassandra/AstraDB, no sobre los archivos del data lake.
+Particionamos los eventos solo por year/month, lo cual nos deja 2 carpetas de 20.880 y 22.320 eventos, y los 3 maestros que pasamos a Bronze  que son :clientes, usuarios y billing, también lo guardamos particionados, porque sirve para procesar y reprocesar los datos por período,  donde las consultas por organización las hacen FinOps, Soporte y Producto sobre Cassandra/AstraDB, no sobre los archivos del data lake.
+
+Para los maestros elegimos columnas de baja cardinalidad, para que la partición sirva para filtrar sin generar muchas carpetas: customers_orgs por plan_tier  donde queda en 4 carpetas, users por role en 6 carpetas y billing_monthly por month en 3 carpetas de 80 filas, una por  cada mes facturado. Como las tablas son chicas, usamos coalesce(1) para escribir un solo archivo por carpeta; los tamaños los ponemos como evidencia en la salida del notebook 02.
 
 ## Los nulos de carbon_kg no van a Quarantine
 
