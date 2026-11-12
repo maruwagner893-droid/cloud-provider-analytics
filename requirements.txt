@@ -1,5 +1,5 @@
 pandas
 matplotlib
 jupyter
-pyspark==4.0.4
+pyspark==4.0.5
 cassandra-driver
