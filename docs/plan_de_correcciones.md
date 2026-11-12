@@ -27,8 +27,8 @@
 ###  Diagrama con gobierno, metadatos, observabilidad y seguridad
 - se considero prioridad 2
 - Responsable: Mariana Wagner
-- Fecha de cierre: 09/10
-- Evidencia: en el diagrama de la sección 4 y en  docs/diagrama_arquitectura.md.
+- Fecha de cierre: 09/10, y el 12/11 se actualizó a la versión 2 para que muestre solo lo implementado en la etapa 2.
+- Evidencia: En el diagrama de la sección 4 y en  docs/diagrama_arquitectura.md. En la versión 2 Gold muestra org_daily_usage_by_service y cost_anomaly_mart, en cuarentena se muestra las reglas aplicadas, y metadatos, observabilidad y seguridad muestran lo que existe en el proyecto.
 
 ### Objetivos con números
 - Se considero prioridad3
