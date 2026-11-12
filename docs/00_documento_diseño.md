@@ -208,6 +208,7 @@ Luego para la capa de presentacion del cliente todos los datos  convergen en la 
 | Costos y facturación por organización y servicio | PySpark Batch | Gold | Valor |
 | Volumen de tickets, SLA y CSAT por org | PySpark Batch | Gold | Valor |
 | Uso, requests y genai_tokens por servicio | PySpark Batch | Gold | Valor |
+| Detectar anomalías de costo por organización y servicio | PySpark Batch | Gold | Valor |
 | Quarantine de registros inválidos | PySpark | Cuarentena | Veracidad |
 | re-ejecución sin duplicados | PySpark Structured Streaming | Bronze Stream y Silver Stream | Veracidad |
 | disponiblizar consultas por dominio | Cassandra/AstraDB | Serving Layer | Valor |
