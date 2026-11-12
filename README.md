@@ -75,5 +75,8 @@ Capturas de pantalla, validaciones y decisiones tomadas durante el desarrollo: `
 ## Cómo ejecutar
 1. Clonar el repositorio (el dataset ya está en la carpeta data/)
 2. Abrir notebooks/02_pipeline_etapa2.ipynb en Google Colab
-3. Para Cassandra: subir el secure connect bundle de AstraDB y guardar el token en los Secretos de Colab con el nombre ASTRA_TOKEN
+3. Para Cassandra:
+   - Crear una base de datos en Astra DB (astra.datastax.com) y, desde el portal, agregar un keyspace con el nombre cloud_provider
+   - Generar un token con el rol Database Administrator y descargar el secure connect bundle de la base
+   - Subir el secure connect bundle a /content/ en Colab y guardar el token en los Secretos de Colab con el nombre ASTRA_TOKEN, activando el acceso del notebook
 4. Ejecutar todas las celdas
