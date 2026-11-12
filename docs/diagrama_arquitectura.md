@@ -1,4 +1,4 @@
-
+Versión 2 · 12/11/2026
 ```mermaid
 flowchart TD
     subgraph SRC["📥 Fuentes de Datos"]
