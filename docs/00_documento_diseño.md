@@ -142,11 +142,11 @@ flowchart TD
     end
 
     subgraph GZ["🥇 Gold Zone — Métricas de Negocio"]
-        GLD["Costos por cliente · Tickets por severidad\nUso por servicio · NPS histórico"]
+        GLD["org_daily_usage_by_service\ncost_anomaly_mart"]
     end
 
     subgraph QUAR["⚠️ Cuarentena"]
-        Q["Registros inválidos\nnps_score out of range · negativos anómalos"]
+        Q["Registros inválidos\ncosto menor a -0,01 · tasa de cambio inválida"]
     end
 
     subgraph SRV["🗃️ Serving Layer"]
@@ -154,9 +154,9 @@ flowchart TD
     end
 
     subgraph GOV["🔐 Capas Transversales"]
-        META["Metadatos\ningest_ts · source_file · row_count · schema_version"]
-        OBS["Observabilidad\nalertas de pipeline · latencia streaming · registros rechazados"]
-        SEC["Seguridad\nencriptación en reposo · credenciales de acceso"]
+        META["Metadatos\ningest_ts · source_file · schema_version"]
+        OBS["Observabilidad\nlastProgress · descartes por watermark · registros rechazados"]
+        SEC["Seguridad\ntoken en Secretos de Colab · bundle fuera del repositorio"]
         GVN["Gobernanza\nFinOps → billing · Soporte → tickets · Producto → uso y NPS"]
     end
 
@@ -173,7 +173,7 @@ flowchart TD
     BRZ_B -->|PySpark| SLV_B
     BRZ_S -->|PySpark| SLV_S
     SLV_B -->|Registros inválidos| Q
-    SLV_S -->|Anomalías| Q
+    SLV_S -->|Costos negativos| Q
     SLV_B -->|PySpark| GLD
     SLV_S -->|Lectura batch| GLD
     GLD -->|PySpark write| CASS
