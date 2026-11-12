@@ -40,7 +40,7 @@ cloud-provider-analytics/
 │   └── Exploración de datos y pipeline de la etapa 2
 │
 ├── src/
-│   └── Pipelines y transformaciones en PySpark
+│   └── Script CQL de la capa de Serving
 │
 └── evidence/
     └── Evidencias, capturas y registro de decisiones
