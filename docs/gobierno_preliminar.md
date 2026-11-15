@@ -77,5 +77,9 @@ Roles del equipo, según el cronograma  del documento de diseño de nuestro proy
 
 Los registros que quedan en Quarantine los revisa el equipo durante los 90 días de retención, ytiene que decidir si se corrigen o se descartan definitivamente.
 ## Acceso
+El acceso lo controlamos en dos lugares: El repositorio y Cassandra/AstraDB.
 
+- Repositorio: tiene el dataset y el código, pero no tiene credenciales. El archivo .gitignore deja afuera el secure connect bundle (secure-connect*.zip) y el archivo .env.
+- Cassandra/AstraDB: para conectarse hacen falta un token y el secure connect bundle de la base. El token se genera desde el portal de Astra con el rol Database Administrator y se guarda en los Secretos de Colab con el nombre ASTRA_TOKEN. El notebook lo lee con userdata.get, por lo cual nunca queda escrito en el código. El bundle se sube a /content/ en cada sesión de Colab.
+- Si un token se filtra, se revoca desde el portal de Astra y se genera uno nuevo.
 ## Evidencias
