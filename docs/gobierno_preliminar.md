@@ -37,7 +37,7 @@ Metadatos de Quarantine:
 - quarantine_ts: fecha y hora en que el registro se envió a Quarantine.
 - 
 ## Linaje
-El linaje muestra de dónde sale cada dato y por qué capas pasa. Todas las rutas son carpetas dentro de data/ en el repositorio.
+El linaje muestra de dónde sale cada dato y por qué capas pasa. Todas las rutas son carpetas dentro de data/, que el notebook crea al ejecutarse a partir del zip del dataset.
 
 usage_events_stream:
 
