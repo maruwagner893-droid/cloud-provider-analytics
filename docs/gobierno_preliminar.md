@@ -14,9 +14,26 @@ Las reglas que aplicamos son las siguentes:
 Además hicimos las siguentes pruebas:
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, donde bronze se mantuvo en 43.200 en los dos casos y silver en 42.989.
 - Archivos desordenados: con los archivos tal como vienen en el dataset solo pasaron 733 de 43.200 eventos, es decir que se descartó el 98,3 % por tardíos. Por eso enviamos los eventos ordenados por timestamp.
-- Datos tardíos: enviamos un evento con un timestamp anterior al watermark y Spark lo descartó, lo que se ve en la métrica numRowsDroppedByWatermark = 1.
-## Metadatos
+- Datos tardíos: enviamos un evento con un timestamp anterior al watermark y Spark lo descartó, lo que se ve en la métrica numRowsDroppedByWatermark = 1
 
+## Metadatos
+A cada registro le agregamos columnas que indican de dónde viene y cuándo se procesó, para poder rastrearlo y controlarlo.
+Metadatos de ingesta, que se agregan en Bronze a las cuatro fuentes que procesamos: los maestros customers_orgs , users  y billing_monthly , y los eventos de usage_events_stream :
+- ingest_ts: fecha y hora en que el registro se cargó en Bronze.
+- source_file: Es el nombre del archivo del que se leyó el registro. En los maestros es el CSV de Landing, pero en los eventos es el archivo del replay (part-*.json), porque los eventos se leen desde data/replay/usage_events_stream, donde se reescriben ordenados por timestamp.
+
+Metadatos del esquema:
+- schema_version: viene en cada evento e indica la versión del esquema. Los eventos de la versión 1 no traen carbon_kg, por lo cual queda nula en ellos. Ademas genai_tokens solo viene en los eventos de la versión 2 del servicio genai, por eso en el resto queda nula.
+- 
+Marcas de calidad, que se agregan en Silver:
+- unit_imputed: Aca la unidad del evento se completó a partir de la métrica.
+- value_missing: el evento no trae value.
+- credits_imputed: en billing, teniamo que credits venía nulo y se tomó como 0.
+- is_credit: en billing, la factura tiene subtotal negativo.
+
+Metadatos de Quarantine:
+- quarantine_reason: Es el  motivo por el que se rechazó el registro.
+- quarantine_ts: fecha y hora en que el registro se envió a Quarantine.
 ## Linaje
 
 ## Responsabilidades
