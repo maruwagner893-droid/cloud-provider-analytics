@@ -62,7 +62,20 @@ customers_orgs y users:
 Para saber de dónde viene un registro usamos source_file, que indica el archivo del que se leyó, y la clave de cada tabla:como  event_id en los eventos, invoice_id en billing, org_id en clientes y user_id en usuarios.Ademas en Gold y en Cassandra los datos ya están agregados, por lo cual se siguen por su grano: org_id, usage_date y service.
 
 ## Responsabilidades
+Las responsabilidades decidimos  dividirlos en dos: En primer lugar tenemos las áreas de negocio, que son dueñas de los datos que usan, y  en segundo los roles del equipo, que se encargan de construir y mantener el pipeline.
 
+Áreas de negocio:
+- FinOps: es responsable de los datos de facturación. Además tiene que confirmar el criterio de tomar credits nulo como 0, que aplicamos en Silver pero todavía está pendiente de su validación.
+- Soporte: es responsable de los datos de tickets.
+- Producto: es responsable de los datos de uso de los servicios  y de NPS.
+
+Roles del equipo, según el cronograma  del documento de diseño de nuestro proyecto son los:
+- Data Analyst: Que es la exploración de los datos.
+- Analista de negocio y Data Engineer: El diseño de la arquitectura.
+- Data Engineer: Aca tenemos el desarrollo del pipeline batch y streaming, y la carga en Cassandra.
+- QA / Tester: el testing del pipeline.
+
+Los registros que quedan en Quarantine los revisa el equipo durante los 90 días de retención, ytiene que decidir si se corrigen o se descartan definitivamente.
 ## Acceso
 
 ## Evidencias
