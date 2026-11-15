@@ -83,3 +83,10 @@ El acceso lo controlamos en dos lugares: El repositorio y Cassandra/AstraDB.
 - Cassandra/AstraDB: para conectarse hacen falta un token y el secure connect bundle de la base. El token se genera desde el portal de Astra con el rol Database Administrator y se guarda en los Secretos de Colab con el nombre ASTRA_TOKEN. El notebook lo lee con userdata.get, por lo cual nunca queda escrito en el código. El bundle se sube a /content/ en cada sesión de Colab.
 - Si un token se filtra, se revoca desde el portal de Astra y se genera uno nuevo.
 ## Evidencias
+Las evidencias de lo que se describe en este documento están en la carpeta evidence/ y en las salidas guardadas del notebook notebooks/02_pipeline_etapa2.ipynb.
+
+- evidence/01_hallazgos_calidad/hallazgos.md:Aca se muestron lo problemas de calidad encontrados en la exploración de los datos.
+- evidence/02_decisiones/decisiones.md: Son las decsiones que tomamos, como los umbrales de Quarantine, el watermark, el particionado y el método de anomalías.
+- evidence/registro_calidad/registro_calidad.md: Son las reglas de calidad de cada tabla.
+- evidence/04_pipeline_spark/: Aca se encuentran las capturas de la ejecución del pipeline. Muestran la ingesta en Bronze , el replay ordenado , la idempotencia , Silver y Quarantine , Gold , la prueba con archivos desordenados , las rutas y tamaños de cada capa , el mart de anomalías  y la prueba controlada de datos tardíos (Evidencia de late data).
+- evidence/03_serving_cassandra/: capturas de la carga en Cassandra/AstraDB , las dos consultas  y el keyspace en Astra.
