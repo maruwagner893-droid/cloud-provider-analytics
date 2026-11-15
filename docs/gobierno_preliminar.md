@@ -35,7 +35,31 @@ Marcas de calidad, que se agregan en Silver:
 Metadatos de Quarantine:
 - quarantine_reason: Es el  motivo por el que se rechazó el registro.
 - quarantine_ts: fecha y hora en que el registro se envió a Quarantine.
+- 
 ## Linaje
+El linaje muestra de dónde sale cada dato y por qué capas pasa. Todas las rutas son carpetas dentro de data/ en el repositorio.
+
+usage_events_stream:
+
+- Landing: los 120 archivos JSONL originales, en data/extracted/datalake/landing/usage_events_stream.
+- Replay: los mismos eventos reescritos ordenados por timestamp, en data/replay/usage_events_stream.
+- Bronze: data/bronze/usage_events_stream, leído con Structured Streaming desde el replay.
+- Silver: data/silver/usage_events, unido con customers_orgs de Bronze. Los rechazados van a data/quarantine/usage_events.
+- Gold: data/gold/org_daily_usage_by_service, que suma los eventos de Silver por organización, día y servicio.
+- Gold: data/gold/cost_anomaly_mart, que se calcula a partir de org_daily_usage_by_service.
+- Serving: la tabla cloud_provider.org_daily_usage_by_service en Cassandra/AstraDB, cargada desde Gold.
+
+billing_monthly:
+
+- Landing: billing_monthly.csv.
+- Bronze: data/bronze/billing_monthly.
+- Silver: data/silver/billing_monthly. Los rechazados van a data/quarantine/billing_monthly.
+  
+customers_orgs y users:
+- Landing: customers_orgs.csv y users.csv.
+- Bronze: data/bronze/customers_orgs y data/bronze/users. customers_orgs se usa en Silver para enriquecer los eventos.
+- 
+Para saber de dónde viene un registro usamos source_file, que indica el archivo del que se leyó, y la clave de cada tabla:como  event_id en los eventos, invoice_id en billing, org_id en clientes y user_id en usuarios.Ademas en Gold y en Cassandra los datos ya están agregados, por lo cual se siguen por su grano: org_id, usage_date y service.
 
 ## Responsabilidades
 
