@@ -25,7 +25,7 @@ Metadatos de ingesta, que se agregan en Bronze a las cuatro fuentes que procesam
 
 Metadatos del esquema:
 - schema_version: viene en cada evento e indica la versión del esquema. Los eventos de la versión 1 no traen carbon_kg, por lo cual queda nula en ellos. Ademas genai_tokens solo viene en los eventos de la versión 2 del servicio genai, por eso en el resto queda nula.
-- 
+
 Marcas de calidad, que se agregan en Silver:
 - unit_imputed: Aca la unidad del evento se completó a partir de la métrica.
 - value_missing: el evento no trae value.
