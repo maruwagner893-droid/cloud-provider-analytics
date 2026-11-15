@@ -18,6 +18,7 @@ Además hicimos las siguentes pruebas:
 
 ## Metadatos
 A cada registro le agregamos columnas que indican de dónde viene y cuándo se procesó, para poder rastrearlo y controlarlo.
+
 Metadatos de ingesta, que se agregan en Bronze a las cuatro fuentes que procesamos: los maestros customers_orgs , users  y billing_monthly , y los eventos de usage_events_stream :
 - ingest_ts: fecha y hora en que el registro se cargó en Bronze.
 - source_file: Es el nombre del archivo del que se leyó el registro. En los maestros es el CSV de Landing, pero en los eventos es el archivo del replay (part-*.json), porque los eventos se leen desde data/replay/usage_events_stream, donde se reescriben ordenados por timestamp.
