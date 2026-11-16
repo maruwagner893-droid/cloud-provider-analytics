@@ -80,7 +80,7 @@ Capturas de pantalla, validaciones y decisiones tomadas durante el desarrollo: `
    - Generar un token con el rol Database Administrator y descargar el secure connect bundle de la base
    - Subir el secure connect bundle a /content/ en Colab y guardar el token en los Secretos de Colab con el nombre ASTRA_TOKEN, activando el acceso del notebook
 4. Ejecutar todas las celdas
-5. 
+ 
 ## Pruebas
 Las pruebas que hicimos con:idempotencia, archivos desordenados, datos tardíos y conteos de cada capa, que están descritas en docs/pruebas_y_reproducibilidad.md, y sus resultados en las salidas del notebook y en la carpeta evidence/.
 
