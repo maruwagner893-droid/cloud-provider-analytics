@@ -4,14 +4,14 @@ En este backlog dejamos lo que nos falta para la entrega final del 09/12 donde l
 
 ## Obligatorio
 
-- Armarmos los marts de Gold que faltan: como revenue_by_org_month, tickets_by_org_date y genai_tokens_by_org_date.
-- Pasamos support_tickets a Bronze y a Silver, porque la necesitamos para el mart de tickets.
-- Creamos en Cassandra una tabla para cada una de las cinco consultas. Hoy la consulta 2 suma los costos por servicio en Python porque la tabla no nos deja agrupar solo por servicio.
-- Cargamos cost_anomaly_mart en Cassandra para poder consultarlo.
-- Completamos el documento de gobierno con seguridad y monitoreo.
-- Pasamos la configuración del notebook a un archivo aparte y agregar manejo de errores.
-- Armamos el diccionario de datos, la presentación y el video.
-- Probamos el README desde cero con otra cuenta, para ver que cualquiera lo pueda ejecutar.
+- Vamos a armar los marts de Gold que faltan: como revenue_by_org_month, tickets_by_org_date y genai_tokens_by_org_date.
+- Tenemos que pasar support_tickets a Bronze y a Silver, porque la necesitamos para el mart de tickets.
+- Ademas se tiene que crear en Cassandra una tabla para cada una de las cinco consultas. Hoy la consulta 2 suma los costos por servicio en Python porque la tabla no nos deja agrupar solo por servicio.
+- Cargar cost_anomaly_mart en Cassandra para poder consultarlo.
+- Completar el documento de gobierno con seguridad y monitoreo.
+- Pasar la configuración del notebook a un archivo aparte y agregar manejo de errores.
+- Armar el diccionario de datos, la presentación y el video.
+- Probar el README desde cero con otra cuenta, para ver que cualquiera lo pueda ejecutar.
 
 ## Deseable
 
