@@ -34,7 +34,7 @@ La conexión a Cassandra/AstraDB no tiene un control propio: si falta el secure 
 No tenemos pruebas automáticas ni una carpeta tests/. Las pruebas las hicimos a mano dentro del notebook:
 
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, y Bronze se mantuvo en 43.200 eventos. Silver también se mantuvo en 42.989.
-- Archivos desordenados: con los archivos tal como vienen en el dataset pasaron 733 de 43.200 eventos (98,3 % descartado por tardíos).
+- Archivos desordenados: con los archivos tal como vienen en el dataset pasaron  alrededor de 733 de 43.200 eventos. Para tener encuetna el número exacto cambia levemente entre ejecuciones, porque depende del orden en que Spark lee los archivos.
 - Datos tardíos: un evento con timestamp anterior al watermark se descarta y la métrica numRowsDroppedByWatermark marca 1.
 - Conteos de cada capa: Bronze 43.200, Silver 42.989, Gold 11.050 filas y Cassandra 11.050 filas, con la misma suma de requests en Gold y en Cassandra.
 - Las dos consultas CQL devuelven resultados.
