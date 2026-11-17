@@ -82,7 +82,7 @@ Se necesita Python 3, una cuenta de Google para Colab y una cuenta de Astra DB.
 4. Abrir notebooks/Exploracion_Cloud_Provider_Analytics.ipynb con Jupyter (o con VS Code) y ejecutar todas las celdas. El notebook descomprime el dataset de data/ y no necesita Spark ni Astra.
 
 ### Etapa 2: pipeline
-4. Abrir notebooks/02_pipeline_etapa2.ipynb en Google Colab,con este enlace: https://colab.research.google.com/github/maruwagner893-droid/cloud-provider-analytics/blob/main/notebooks/02_pipeline_etapa2.ipynb.Tener encuenta que en sus primeras celdas el notebook vuelve a clonar el repositorio dentro de Colab y descomprime el dataset, por lo cual que no hace falta subir nada a mano.
+4. Abrir notebooks/02_pipeline_etapa2.ipynb en Google Colab,con este enlace: https://colab.research.google.com/github/maruwagner893-droid/cloud-provider-analytics/blob/main/notebooks/02_pipeline_etapa2.ipynb .Tener encuenta que en sus primeras celdas el notebook vuelve a clonar el repositorio dentro de Colab y descomprime el dataset, por lo cual que no hace falta subir nada a mano.
 5. Para Cassandra, antes de ejecutar:
  - Crear una base de datos en Astra DB:astra.datastax.com y, desde el portal, agregar un keyspace con el nombre cloud_provider
 - Generar un token con el rol Database Administrator y descargar el secure connect bundle de la base, sin cambiarle el nombre
