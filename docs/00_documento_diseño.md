@@ -155,7 +155,7 @@ flowchart TD
 
     subgraph GOV["🔐 Capas Transversales"]
         META["Metadatos\ningest_ts · source_file · schema_version"]
-        OBS["Observabilidad\nlastProgress · descartes por watermark · registros rechazados"]
+        OBS["Observabilidad\nStreamingQueryListener · descartes por watermark · registros rechazados"]
         SEC["Seguridad\ntoken en Secretos de Colab · bundle fuera del repositorio"]
         GVN["Gobernanza\nFinOps → billing · Soporte → tickets · Producto → uso y NPS"]
     end
