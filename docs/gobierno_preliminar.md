@@ -13,7 +13,7 @@ Las reglas que aplicamos son las siguentes:
 
 Además hicimos las siguentes pruebas:
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, donde bronze se mantuvo en 43.200 en los dos casos y silver en 42.989.
-- Archivos desordenados: con los archivos tal como vienen en el dataset solo pasaron 733 de 43.200 eventos, es decir que se descartó el 98,3 % por tardíos. Por eso enviamos los eventos ordenados por timestamp.
+- Archivos desordenados: con los archivos tal como vienen en el dataset pasaron alrededor de 730 de 43.200 eventos, es decir que se descartó el 98,3 % por tardíos. El número exacto cambia levemente entre ejecuciones, porque depende del orden en que Spark lee los archivos. Por eso enviamos los eventos ordenados por timestamp.
 - Datos tardíos: enviamos un evento con un timestamp anterior al watermark y Spark lo descartó, lo que se ve en la métrica numRowsDroppedByWatermark = 1
 
 ## Metadatos
