@@ -176,7 +176,7 @@ flowchart TD
     BRZ_B -->|Clientes| SLV_S
     SLV_B -->|Tasa de cambio inválida| Q
     SLV_S -->|event_id nulo · costo menor a -0,01| Q
-    SLV_S -->|Lectura batch| GLD
+    SLV_B -.->|entrega final| GLD
     GLD -->|PySpark write| CASS
     CASS --> FO
     CASS --> PR
@@ -184,7 +184,7 @@ flowchart TD
     GOV -.->|aplica a todas las zonas| LZ
     GOV -.->|aplica a todas las zonas| BATCH
     GOV -.->|aplica a todas las zonas| STREAM
-    GOV -.->|aplica a todas las zonas| GZ
+    GOV -.->|aplica a todas las zonas| SRV
 ```
 
 ## 5. Patrón arquitectónico
