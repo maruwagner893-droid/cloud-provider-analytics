@@ -1,6 +1,4 @@
-Versión 2 · 12/11/2026
-
-Diagrama generado con IA a partir de nuestro diseño
+Versión 2 · 17/11/2026
 
 ```mermaid
 flowchart TD
