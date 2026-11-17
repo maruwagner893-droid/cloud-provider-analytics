@@ -114,7 +114,7 @@ En todas las tablas las fechas están guardadas como texto (tipo object en panda
 
 #### Riesgo 3: nps_score fuera de rango en customers_orgs
 
-En customers_orgs encontramos un nps_score con valor 101. El NPS válido va de -100 a 100, por lo que ese valor es imposible y distorsiona los promedios de satisfacción del cliente. Este registro se marca como outlier y se envía a quarantine.
+En customers_orgs encontramos un nps_score con valor 101. El NPS válido va de -100 a 100, por lo que ese valor es imposible y distorsiona los promedios de satisfacción del cliente.Este registro se tiene que marcar como outlier y enviar a quarantine; en esta etapa todavía no lo aplicamos y quedó en el backlog.
 
 ## 4. Arquitectura de alto nivel
 
