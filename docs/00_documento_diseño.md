@@ -82,21 +82,22 @@ Ninguna tabla muestra filas duplicadas.
 
 ### Trazabilidad
 
-**customers_orgs** es un archivo formato CSV y su clave única es org_id.Consideramos que es la tabla central; por ende todas las demás tablas se conectan a ella por ese ID.
+### Trazabilidad
 
-**users** es un archivo formato CSV y su clave única es user_id, y se conecta con customers_orgs a través de org_id.
+customers_orgs es la tabla central y todas las demás se conectan a ella por org_id.
 
-**resources** es un archivo formato CSV y su clave única es resource_id, y se conecta con customers_orgs a través de org_id.
-
-**support_tickets** es un archivo formato CSV y su clave única es ticket_id, y se conecta con customers_orgs a través de org_id.
-
-**marketing_touches** es un archivo formato CSV y su clave única es touch_id, y se conecta con customers_orgs a través de org_id.
+| Tabla | Formato | Clave única | Se conecta con |
+|---|---|---|---|
+| customers_orgs | CSV | org_id | — (es la central) |
+| users | CSV | user_id | customers_orgs (org_id) |
+| resources | CSV | resource_id | customers_orgs (org_id) |
+| support_tickets | CSV | ticket_id | customers_orgs (org_id) |
+| marketing_touches | CSV | touch_id | customers_orgs (org_id) |
+| nps_surveys | CSV | org_id + survey_date | customers_orgs (org_id) |
+| billing_monthly | CSV | invoice_id | customers_orgs (org_id) |
+| usage_events_stream | JSONL | event_id | customers_orgs (org_id) y resources (resource_id) |
 
 **nps_surveys** es un archivo formato CSV y no tiene una clave única propia, por lo que se identifica cada encuesta con la combinación de org_id + survey_date,como clave compuesta, y se conecta con customers_orgs a través de org_id. Esto se debe a que si se usa solo org_id, la misma organización aparece varias veces y parecen datos repetidos; con survey_date, cada combinación es única y se puede identificar exactamente qué encuesta pretenece.
-
-**billing_monthly** es un archivo formato CSV y su clave única es invoice_id, y se conecta con customers_orgs a través de org_id.
-
-**usage_events_stream** es un archivo formato JSONL y su clave única es event_id, y se conecta con customers_orgs a través de org_id y con resources a través de resource_id.
 
 ### Riesgos identificados
 
@@ -113,7 +114,7 @@ En todas las tablas las fechas están guardadas como texto (tipo object en panda
 
 #### Riesgo 3: nps_score fuera de rango en customers_orgs
 
-En customers_orgs encontré un nps_score con valor 101. El NPS válido va de -100 a 100, por lo que ese valor es imposible y distorsiona los promedios de satisfacción del cliente. Este registro se marca como outlier y se envía a quarantine.
+En customers_orgs encontramos un nps_score con valor 101. El NPS válido va de -100 a 100, por lo que ese valor es imposible y distorsiona los promedios de satisfacción del cliente. Este registro se marca como outlier y se envía a quarantine.
 
 ## 4. Arquitectura de alto nivel
 
@@ -274,15 +275,15 @@ Por último en Reduce: PySpark agrega los valores agrupados y produce las métri
 
 En billing_monthly tenemos facturas en distintas monedas: USD, ARS, EUR. Para saber cuánto gastó cada organización en total, PySpark hace lo siguiente:
 
-Map: lee cada factura, descuenta los créditos, donde si credits es nulo vale 0 y multiplica el resultado por el tipo de cambio para convertirlo a USD. El resultado es un par:org_id, monto_en_usd. Como ejemplo tenemos que org_xaji0y6d tiene 3 facturas. Las tres se multiplican por su exchange_rate_to_usd, incluso las de USD, porque su tasa no es exactamente 1.0: 1133.34 × 0.97684 = 1107.09 USD y 619.17 × 1.00331 = 621.22 USD. La tercera viene en ARS: 540.79 × 0.00160 = 0.87 USD.
+Map: lee cada factura, descuenta los créditos, donde tenemos que si credits es nulo vale 0 y multiplica el resultado por el tipo de cambio para convertirlo a USD. El resultado es un par:org_id, monto_en_usd. Como ejemplo tenemos que org_xaji0y6d tiene 3 facturas. Las tres se multiplican por su exchange_rate_to_usd, incluso las de USD, porque su tasa no es exactamente 1.0: 1133.34 × 0.97684 = 1107.09 USD y 619.17 × 1.00331 = 621.22 USD. La tercera viene en ARS: 540.79 × 0.00160 = 0.87 USD.
 
-Shuffle: junta todas las facturas de org_xaji0y6d en un mismo nodo, todas las de org_pbhsahxt en otro, etc.
+En Shuffle juntamos todas las facturas de org_xaji0y6d en un mismo nodo, todas las de org_pbhsahxt en otro, etc.
 
-Reduce: suma todos los montos de cada organización. ya que org_xaji0y6d tenía tres facturas: 1107.09 USD + 621.22 USD + 0.87 USD = 1729.18 USD total.
+En Reduce sumamos todos los montos de cada organización. ya que org_xaji0y6d tenía tres facturas: 1107.09 USD + 621.22 USD + 0.87 USD = 1729.18 USD total.
 
 Grano final: al terminar tenemos una sola fila por organización con su costo total en USD.
 
-Validación: Por lo que total_usd no puede ser nulo. Dado a que no se puede verificar sumando los subtotales originales porque están en monedas distintas. Para validar se recalcula fila por fila: (subtotal - COALESCE(credits, 0)) × exchange_rate_to_usd, y se verifica que el resultado coincida con el total_usd que produjo el Reduce. Además se controla que ninguna tasa sea nula o cero.
+Por ultimo tenemos la validación por lo que total_usd no puede ser nulo. Dado a que esto no se puede verificar sumando los subtotales originales, porque están en monedas distintas. Para validar se  tiene que recalcula fila por fila: (subtotal - COALESCE(credits, 0)) × exchange_rate_to_usd, y se verifica que el resultado coincida con el total_usd que produjo el Reduce. Además se controla que ninguna tasa sea nula o cero.
 
 ## 10. Supuestos y riesgos
 ### Supuestos
@@ -308,7 +309,7 @@ Para el riesgo 1 tomamos que  la mitigación habitual es generar un reporte o lo
 
 Para el riesgo  de credits con el 57% de nulos, la mitigación  considerada  es tratar credits nulo como 0 en la fórmula del Map: (subtotal - COALESCE(credits, 0)) × exchange_rate_to_usd. Así Gold siempre recibe un número válido. Esta decisión está pendiente de confirmar con FinOps.
 
-Como mitigación del riesgo 3, se podría agregar una capa que funcione como interfaz común a todas las versiones, de forma que al aparecer una nueva versión solo sea necesario modificar esa capa y no todo el proceso.
+Como mitigación del riesgo 3, planteamos que se podria  agregar una capa que funcione como interfaz común a todas las versiones, de forma que al aparecer una nueva versión solo sea necesario modificar esa capa y no todo el proceso.
 
 Por ultimo para el riesgo de archivos pequeños, se consideraron dos frentes: por un lado tenemos el crecimiento del sistema en producción, con más organizaciones y más meses de datos donde cada partición va a acumular muchos más eventos y los archivos van a ser más grandes; y  por otro lado, se aplica coalesce() antes de escribir los maestros en Bronze y Gold en Parquet para poder consolidar los archivos pequeños en uno solo, reduciendo asi el tiempo que Spark gasta abriendo y cerrando archivos innecesariamente. 
 
