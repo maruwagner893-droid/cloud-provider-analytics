@@ -6,7 +6,7 @@ Los controles los aplicamos en cada capa del pipeline, pero no todos funcionan d
 
 Las reglas que aplicamos son las siguentes:
 - Event_id no nulo: si un evento no tiene event_id va a Quarantine con el motivo event_id_nulo. En los datos no encontramos ninguno.
-- Costo: los eventos con cost_usd_increment menor a -0,01 van a Quarantine con el motivo cost_usd_increment_menor_a_-0.01. Son 211 -- Eventos es decir el 0,49 %, quedando asi en Silver quedan 42.989.
+- Costo: los eventos con cost_usd_increment menor a -0,01 van a Quarantine con el motivo cost_usd_increment_menor_a_-0.01. Son 211 eventos, es decir el 0,49 %, quedando asi en Silver quedan 42.989.
 - Unit: cuando  falta, decidimos completarlos según la métrica y lo marcamos con unit_imputed.Fueron 2.069 y en Silver no queda ninguna vacía.
 - Duplicados: los sacamos en Bronze por event_id con un watermark de 10 minutos, y quedan 43.200 eventos.
 - Billing: los credits nulos los tomamos como 0 y los marcamos con credits_imputed, las facturas con subtotal negativo las marcamos con is_credit  y las que tengan tasa de cambio nula o menor o igual a 0 van a Quarantine con el motivo exchange_rate_nula_o_no_positiva. No hubo ninguna, por lo cual las 240 facturas pasan a Silver.
