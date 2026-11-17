@@ -1,4 +1,7 @@
 Versión 2 · 12/11/2026
+
+Diagrama generado con IA a partir de nuestro diseño
+
 ```mermaid
 flowchart TD
     subgraph SRC["📥 Fuentes de Datos"]
