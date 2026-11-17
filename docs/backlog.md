@@ -24,8 +24,7 @@ En este backlog dejamos lo que nos falta para la entrega final del 09/12, separa
 - Verificar los datos de Cassandra por organización, en lugar de con COUNT(*) y SUM sobre toda la tabla.
 - Pasar el código de los notebooks a scripts en src/ y dejar los notebooks para la exploración y las evidencias.
 - Archivar los archivos de Landing que ya se procesaron, con la opción cleanSource de Structured Streaming.
-- Guardar las métricas de cada micro-lote, como filas, duración y descartes por watermark, con StreamingQueryListener.
-
+- Registrar también las métricas de cada micro-lote de Silver con StreamingQueryListener, como ya hacemos en Bronze.
 ## Fuera de alcance
 
 - Leer los eventos desde Kafka, porque la consigna define como fuente una carpeta de archivos JSONL.
