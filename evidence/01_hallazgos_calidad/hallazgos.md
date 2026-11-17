@@ -12,7 +12,7 @@ Nulos en tags_json (20.75%). La columna created_at está guardada como texto en 
 
 ## support_tickets:
 
-Nulos en resolved_at (24%) y csat (25.4%). Las columnas created_at y resolved_at están guardadas como texto. La columna csat usa una escala 0-7 poco habitual que conviene confirmar con la fuente.
+Nulos en resolved_at (24%) y csat (25.4%). Las columnas created_at y resolved_at están guardadas como texto. La columna csat usa una escala 0-7 poco habitual.
 
 ## marketing_touches:
 
