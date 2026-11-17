@@ -7,31 +7,30 @@ Ademas la versión de PySpark que usamos es la 4.0.5, y es la única que está f
 
 ## Configuración
 La configuración está definida en las celdas del notebook y Los valores que usamos son:
-- Spark: se ejecuta en modo local (local[*]) con 8 particiones de shuffle, porque el volumen de datos es chico. La zona horaria de la sesión es UTC, para que las fechas de los eventos se calculen siempre igual.
-- Rutas: Todas parten de la carpeta del repositorio en Colab  y se guardan en variables como LANDING, BRONZE_EVENTS, SILVER_EVENTS y GOLD_USAGE.
+- Spark: se ejecuta en modo local (local[*]) con 8 particiones de shuffle, porque el volumen de datos es chico. Solo en el replay de la celda 9 se pasan a 120 y se apaga la optimización adaptativa, para que salgan 120 archivos ordenados, y después se vuelve a 8. La zona horaria de la sesión es UTC, para que las fechas de los eventos se calculen siempre igual.
 - Streaming: Bronze y Silver leen 10 archivos por micro-lote, usan el trigger availableNow, que procesa todo lo pendiente y termina, y cada consulta tiene su propio checkpoint en data/checkpoints/bronze_events y data/checkpoints/silver_events. Bronze aplica un watermark de 10 minutos.
 - Reglas: el umbral de costo para Quarantine es -0,01 y el factor del método IQR para las anomalías es 1,5.
 - Cassandra: el token se lee del secreto ASTRA_TOKEN de Colab, el bundle se busca en /content/ y la conexión usa el keyspace cloud_provider.
 
 ## Logs
-No tenemos un módulo de logging. Los registros de la ejecución son las salidas del notebook y son las siguentes: print, show y explain, quedando estas guardadas en el notebook, y las capturas de la carpeta evidence/.
+Los registros de la ejecución son las salidas del notebook: print, show y explain, que quedan guardadas en el notebook, y las capturas de la carpeta evidence/.
 
 Para el streaming, la consulta de Bronze tiene el nombre bronze_events y cada micro-lote se registra con un StreamingQueryListener, que guarda el número de micro-lote en batchId, las filas leídas en numInputRows y las filas por segundo que llegan y que se procesan en inputRowsPerSecond y en processedRowsPerSecond. Al final mostramo cuántos micro-lotes tuvieron datos y el total de filas leídas: que son  12 micro-lotes y 43.200 filas.
 
 Los registros rechazados quedan en Quarantine con el motivo: quarantine_reason y la fecha y hora del rechazo  en quarantine_ts, lo que funciona como registro de todo lo que no pasó las reglas de calidad.
 
 ## Manejo de errores
-En el notebook no hay manejo de errores de código (try/except). Lo que sí tenemos son controles sobre los datos y sobre la re-ejecución:
+Para los errores decidimos apoyarnos en los controles sobre los datos y sobre la re-ejecución, sin try/except en el código:
 - Esquemas explícitos en todas las lecturas, para que cada columna tenga el tipo esperado.
 - Reglas de calidad: los registros inválidos van a Quarantine y el proceso sigue con el resto.
 - mode("overwrite") en las escrituras batch, para poder volver a ejecutar sin duplicar datos.
 - Checkpoints en el streaming, para no volver a procesar archivos que ya se leyeron.
-- Antes de clonar, el notebook verifica si el repositorio ya existe (if not os.path.isdir(REPO)).
+- Antes de clonar, el notebook  se tiene que verificar si el repositorio ya existe (if not os.path.exists(REPO)).
 
-La conexión a Cassandra/AstraDB no tiene un control propio: si falta el secure connect bundle o el token, la celda falla y hay que revisar el paso 3 del README.
+La conexión a Cassandra/AstraDB no tiene un control propio: por eso se tiene que tener encuenta que si falta el secure connect bundle o el token, la celda falla y hay que revisar el paso 5 del README.
 
 ## Pruebas
-No tenemos pruebas automáticas ni una carpeta tests/. Las pruebas las hicimos a mano dentro del notebook:
+Las pruebas las hicimos a mano dentro del notebook, sin una carpeta tests/:
 
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, y Bronze se mantuvo en 43.200 eventos. Silver también se mantuvo en 42.989.
 - Archivos desordenados: con los archivos tal como vienen en el dataset pasaron  alrededor de 733 de 43.200 eventos. Para tener encuetna el número exacto cambia levemente entre ejecuciones, porque depende del orden en que Spark lee los archivos.
