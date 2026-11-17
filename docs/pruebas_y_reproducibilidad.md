@@ -16,7 +16,7 @@ La configuración está definida en las celdas del notebook y Los valores que us
 ## Logs
 No tenemos un módulo de logging. Los registros de la ejecución son las salidas del notebook y son las siguentes: print, show y explain, quedando estas guardadas en el notebook, y las capturas de la carpeta evidence/.
 
-Para el streaming, la consulta de Bronze tiene el nombre bronze_events y su estado se ve con lastProgress, que muestra el número de micro-lote (batchId), las filas leídas (numInputRows) y las filas por segundo que llegan y que se procesan en inputRowsPerSecond y  en processedRowsPerSecond.
+Para el streaming, la consulta de Bronze tiene el nombre bronze_events y cada micro-lote se registra con un StreamingQueryListener, que guarda el número de micro-lote en batchId, las filas leídas en numInputRows y las filas por segundo que llegan y que se procesan en inputRowsPerSecond y en processedRowsPerSecond. Al final mostramo cuántos micro-lotes tuvieron datos y el total de filas leídas: que son  12 micro-lotes y 43.200 filas.
 
 Los registros rechazados quedan en Quarantine con el motivo: quarantine_reason y la fecha y hora del rechazo  en quarantine_ts, lo que funciona como registro de todo lo que no pasó las reglas de calidad.
 
