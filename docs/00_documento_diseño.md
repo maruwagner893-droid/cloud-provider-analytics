@@ -82,8 +82,6 @@ Ninguna tabla muestra filas duplicadas.
 
 ### Trazabilidad
 
-### Trazabilidad
-
 customers_orgs es la tabla central y todas las demás se conectan a ella por org_id.
 
 | Tabla | Formato | Clave única | Se conecta con |
@@ -239,8 +237,8 @@ En Landing los datos se conservan 30 días, ya que una vez ingeridos en Bronze l
 2. Esos archivos se copian tal cual a Landing, sin modificarse nada.
 3. PySpark Batch los lee de Landing, les pone el tipo de dato correcto, saca los duplicados por clave, agrega las columnas ingest_ts y source_file, y los guarda en Parquet en Bronze.
 4. PySpark toma lo de Bronze, lo lleva a Silver y ahí arregla nulos y normaliza la moneda a USD. Los registros inválidos se envían a Cuarentena.
-5 PySpark toma lo de Silver, calcula las métricas de negocio y las guarda en Gold. En esta etapa Gold se arma con los eventos; billing se suma en la entrega final
-6. 6. Desde Gold, leemos el mart con PySpark y lo cargamos en Cassandra/AstraDB con el driver de Python:cassandra-driver.
+5. PySpark toma lo de Silver, calcula las métricas de negocio y las guarda en Gold. En esta etapa Gold se arma con los eventos; billing se suma en la entrega final
+6. Desde Gold, leemos el mart con PySpark y lo cargamos en Cassandra/AstraDB con el driver de Python:cassandra-driver.
 
 ### 8.2 Flujo Streaming (Datos en tiempo real)
 
