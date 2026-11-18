@@ -57,7 +57,7 @@ flowchart TD
     SLV_B -->|Tasa de cambio inválida| Q
     SLV_S -->|event_id nulo · costo menor a -0,01| Q
     SLV_B -.->|entrega final| GLD
-    GLD -->|PySpark write| CASS
+    GLD -->|cassandra-driver| CASS
     CASS --> FO
     CASS --> PR
     CASS -.->|entrega final| SP
