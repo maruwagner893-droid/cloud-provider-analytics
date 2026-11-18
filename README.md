@@ -26,7 +26,9 @@ La solución implementa una Arquitectura Lambda que combina:
 ```
 cloud-provider-analytics/
 │
-├── data/
+├── data/  
+│   ├── cloud_provider_challenge_dataset_v1.zip  
+│   ├── landing/
 │   ├── landing/
 │   ├── bronze/
 │   ├── silver/
