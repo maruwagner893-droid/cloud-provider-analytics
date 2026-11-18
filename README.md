@@ -29,7 +29,6 @@ cloud-provider-analytics/
 ├── data/  
 │   ├── cloud_provider_challenge_dataset_v1.zip  
 │   ├── landing/
-│   ├── landing/
 │   ├── bronze/
 │   ├── silver/
 │   ├── gold/
