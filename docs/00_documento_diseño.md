@@ -177,7 +177,7 @@ flowchart TD
     SLV_B -->|Tasa de cambio inválida| Q
     SLV_S -->|event_id nulo · costo menor a -0,01| Q
     SLV_B -.->|entrega final| GLD
-    GLD -->|PySpark write| CASS
+    GLD -->|cassandra-driver| CASS
     CASS --> FO
     CASS --> PR
     CASS -.->|entrega final| SP
@@ -238,16 +238,16 @@ En Landing los datos se conservan 30 días, ya que una vez ingeridos en Bronze l
 1. Los datos nacen como archivos CSV: clientes, usuarios, recursos, tickets, billing, NPS y marketing.
 2. Esos archivos se copian tal cual a Landing, sin modificarse nada.
 3. PySpark Batch los lee de Landing, les pone el tipo de dato correcto, saca los duplicados por clave, agrega las columnas ingest_ts y source_file, y los guarda en Parquet en Bronze.
-4. PySpark toma lo de Bronze, lo lleva a Silver y ahí arregla nulos, une tablas y normaliza la moneda a USD. Los registros inválidos se envían a Cuarentena.
-5. PySpark toma lo de Silver, calcula las métricas de negocio y las guarda en Gold.
-6. Desde Gold, PySpark escribe los resultados en Cassandra/AstraDB.
+4. PySpark toma lo de Bronze, lo lleva a Silver y ahí arregla nulos y normaliza la moneda a USD. Los registros inválidos se envían a Cuarentena.
+5 PySpark toma lo de Silver, calcula las métricas de negocio y las guarda en Gold. En esta etapa Gold se arma con los eventos; billing se suma en la entrega final
+6. 6. Desde Gold, leemos el mart con PySpark y lo cargamos en Cassandra/AstraDB con el driver de Python:cassandra-driver.
 
 ### 8.2 Flujo Streaming (Datos en tiempo real)
 
 1. Los eventos de uso llegan continuamente como archivos JSONL.
 2. Se copian tal cual a Landing.
 3. PySpark Structured Streaming los lee en tiempo real, tipifica, agrega `ingest_ts` y `source_file`, y guarda en Parquet en Bronze Stream.
-4. En Bronze, el stream deduplica por event_id para no guardar dos veces el mismo evento. Los eventos que llegan dentro del watermark siempre se procesan; los que llegan después pueden descartarse. Por eso ordenamos los eventos por timestamp antes de enviarlos: por que cuando realizamos una prueba con los archivos desordenados solo pasó el 1,7 % de los eventos, y con los archivos ordenados pasaron los 43.200. Después en un segundo stream: que es Silver Stream lee desde Bronze, aplica filtros y detecta anomalías, y las envía a Cuarentena.
+4. En Bronze, el stream deduplica por event_id para no guardar dos veces el mismo evento. Los eventos que llegan dentro del watermark siempre se procesan; los que llegan después pueden descartarse. Por eso ordenamos los eventos por timestamp antes de enviarlos: por que cuando realizamos una prueba con los archivos desordenados solo pasó el 1,7 % de los eventos, y con los archivos ordenados pasaron los 43.200.Después en un segundo stream: que es Silver Stream lee desde Bronze, aplica las reglas de calidad y envía a Cuarentena los registros que no las cumplen. Las anomalías de costo se detectan después, en Gold.
 5. Desde Silver Stream converge con el camino batch en Gold.
 6. Desde Gold se escribe en Cassandra/AstraDB.
 
