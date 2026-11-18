@@ -1,4 +1,4 @@
-Versión 2 · 17/11/2026
+Versión 3 · 17/11/2026
 
 ```mermaid
 flowchart TD
