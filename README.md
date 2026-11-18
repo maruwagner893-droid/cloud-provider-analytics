@@ -78,8 +78,8 @@ Se necesita Python 3, una cuenta de Google para Colab y una cuenta de Astra DB.
 1. Clonar el repositorio: https://github.com/maruwagner893-droid/cloud-provider-analytics. el dataset ya está en la carpeta data/.
 
 ### Etapa 1: exploración de datos
-3. Dentro de la carpeta del repositorio, instalar las dependencias con: pip install -r requirements.txt
-4. Abrir notebooks/Exploracion_Cloud_Provider_Analytics.ipynb con Jupyter (o con VS Code) y ejecutar todas las celdas. El notebook descomprime el dataset de data/ y no necesita Spark ni Astra.
+2. Dentro de la carpeta del repositorio, instalar las dependencias con: pip install -r requirements.txt
+3. Abrir notebooks/Exploracion_Cloud_Provider_Analytics.ipynb con Jupyter (o con VS Code) y ejecutar todas las celdas. El notebook descomprime el dataset de data/ y no necesita Spark ni Astra.
 
 ### Etapa 2: pipeline
 4. Abrir notebooks/02_pipeline_etapa2.ipynb en Google Colab,con este enlace: https://colab.research.google.com/github/maruwagner893-droid/cloud-provider-analytics/blob/main/notebooks/02_pipeline_etapa2.ipynb .Tener encuenta que en sus primeras celdas el notebook vuelve a clonar el repositorio dentro de Colab y descomprime el dataset, por lo cual que no hace falta subir nada a mano.
