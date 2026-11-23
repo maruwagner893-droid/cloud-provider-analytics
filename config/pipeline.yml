@@ -1,1 +1,28 @@
+# Configuración del pipeline Cloud Provider Analytics
 
+spark:
+  app_name: cloud-provider-analytics
+  shuffle_partitions: 8
+  timezone: UTC
+
+rutas:
+  landing: data/extracted/datalake/landing
+  bronze: data/bronze
+  bronze_eventos: data/bronze/usage_events_stream
+  silver_eventos: data/silver/usage_events
+  silver_billing: data/silver/billing_monthly
+  quarantine_eventos: data/quarantine/usage_events
+  gold_uso: data/gold/org_daily_usage_by_service
+  gold_anomalias: data/gold/cost_anomaly_mart
+  checkpoints: data/checkpoints
+
+streaming:
+  max_files_per_trigger: 10
+  watermark: 10 minutes
+
+calidad:
+  costo_minimo: -0.01
+
+cassandra:
+  keyspace: cloud_provider
+  tabla_uso: org_daily_usage_by_service
