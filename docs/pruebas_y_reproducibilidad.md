@@ -6,7 +6,7 @@ Los pasos para poder ejecutar nuesto proyecto desde cero están en la sección c
 Ademas la versión de PySpark que usamos es la 4.0.5, y es la única que está fijada en requirements.txt; los demás paquetes no tienen versión. En el notebook  se instala PySpark sin indicar su versión, así que en Colab se instala la última disponible.
 
 ## Configuración
-La configuración está definida en las celdas del notebook y Los valores que usamos son:
+La configuración está en config/pipeline.yml, y la leen el notebook y el script de pruebas, así cada valor está escrito en un solo lugar. Los valores que usamos son:
 - Spark: se ejecuta en modo local (local[*]) con 8 particiones de shuffle, porque el volumen de datos es chico. La zona horaria de la sesión es UTC, para que las fechas de los eventos se calculen siempre igual.
 - Streaming: Bronze y Silver leen 10 archivos por micro-lote, usan el trigger availableNow, que procesa todo lo pendiente y termina, y cada consulta tiene su propio checkpoint en data/checkpoints/bronze_events y data/checkpoints/silver_events. Bronze lee directo los archivos de Landing y aplica un watermark de 10 minutos sobre ingest_ts, la hora de llegada.
 - Reglas: el umbral de costo para Quarantine es -0,01 y el factor del método IQR para las anomalías es 1,5.
@@ -30,7 +30,11 @@ Para los errores decidimos apoyarnos en los controles sobre los datos y sobre la
 La conexión a Cassandra/AstraDB no tiene un control propio: por eso se tiene que tener encuenta que si falta el secure connect bundle o el token, la celda falla y hay que revisar el paso 5 del README.
 
 ## Pruebas
-Las pruebas las hicimos a mano dentro del notebook, sin una carpeta tests/:
+Las pruebas automáticas están en tests/test_pipeline.py. Estas se corren después de ejecutar el notebook 02, ademas la última celda del notebook ya las ejecuta sola. Hacen 21 verificaciones y al final dicen si todas pasaron; la salida está en evidence/04_pipeline_spark/13_pruebas_automaticas.png.
+
+Además, en el notebook quedaron estas pruebas, que también sirven como evidencia:
+
+Además, en el notebook quedaron estas pruebas, que también sirven como evidencia:
 
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, y Bronze se mantuvo en 43.200 eventos. Silver también se mantuvo en 42.989.
 - Archivos desordenados: con el watermark sobre timestamp y los archivos como vienen en el dataset pasaron alrededor de 733 de 43.200 eventos. Para tener encuetna el número exacto cambia levemente entre ejecuciones, porque depende del orden en que Spark lee los archivos. Con el watermark sobre ingest_ts, Bronze recibe los 43.200.
