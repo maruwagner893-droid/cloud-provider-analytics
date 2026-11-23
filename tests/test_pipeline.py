@@ -19,7 +19,7 @@ spark = (SparkSession.builder
          .config("spark.sql.shuffle.partitions", config["spark"]["shuffle_partitions"])
          .getOrCreate())
 spark.conf.set("spark.sql.session.timeZone", config["spark"]["timezone"])
-
+spark.sparkContext.setLogLevel("ERROR")   # solo mostrar errores, no los avisos de Spark
 fallas = 0
 
 def revisar(texto, valor, esperado):
