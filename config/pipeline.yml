@@ -1,7 +1,6 @@
 # Configuración del pipeline Cloud Provider Analytics
 
 spark:
-  app_name: cloud-provider-analytics
   shuffle_partitions: 8
   timezone: UTC
 
