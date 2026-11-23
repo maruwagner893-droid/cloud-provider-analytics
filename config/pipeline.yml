@@ -11,6 +11,7 @@ rutas:
   silver_eventos: data/silver/usage_events
   silver_billing: data/silver/billing_monthly
   quarantine_eventos: data/quarantine/usage_events
+  quarantine_billing: data/quarantine/billing_monthly
   gold_uso: data/gold/org_daily_usage_by_service
   gold_anomalias: data/gold/cost_anomaly_mart
   checkpoints: data/checkpoints
@@ -24,4 +25,3 @@ calidad:
 
 cassandra:
   keyspace: cloud_provider
-  tabla_uso: org_daily_usage_by_service
