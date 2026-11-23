@@ -18,7 +18,6 @@ En este backlog dejamos lo que nos falta para la entrega final del 09/12 donde l
 - Tenemos que pasar a Bronze y Silver las tablas que todavía no procesamos: resources, marketing_touches y nps_surveys.
 - Aplicar en Silver la regla del NPS fuera de rango (encontramos un valor de 101).
 - El poder medir si cumplimos los objetivos del documento de diseño: 60 segundos en streaming y menos de 30 minutos en batch.
-- Guardar en algún lado los eventos que descarta el watermark, en vez de perderlos.
 - Evitar tener que volver a subir el archivo de Astra cada vez que Colab se reinicia.
 - Borrar los registros de Quarantine después de 90 días, como dice el gobierno.
 - Pasar el código de los notebooks a archivos .py en src/.
