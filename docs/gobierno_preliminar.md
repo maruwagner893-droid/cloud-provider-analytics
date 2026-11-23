@@ -21,7 +21,7 @@ A cada registro le agregamos columnas que indican de dónde viene y cuándo se p
 
 Metadatos de ingesta, que se agregan en Bronze a las cuatro fuentes que procesamos: los maestros customers_orgs , users  y billing_monthly , y los eventos de usage_events_stream :
 - ingest_ts: fecha y hora en que el registro se cargó en Bronze.
-- source_file: Es el nombre del archivo del que se leyó el registro. En los maestros es el CSV de Landing, pero en los eventos es el archivo del replay (part-*.json), porque los eventos se leen desde data/replay/usage_events_stream, donde se reescriben ordenados por timestamp.
+- source_file: Es el nombre del archivo del que se leyó el registro. En los maestros es el CSV de Landingy en los eventos es el archivo JSONL original de Landing (events_part_XXXX.jsonl), porque los eventos se leen desde data/replay/usage_events_stream, donde se reescriben ordenados por timestamp.
 
 Metadatos del esquema:
 - schema_version: viene en cada evento e indica la versión del esquema. Los eventos de la versión 1 no traen carbon_kg, por lo cual queda nula en ellos. Ademas genai_tokens solo viene en los eventos de la versión 2 del servicio genai, por eso en el resto queda nula.
