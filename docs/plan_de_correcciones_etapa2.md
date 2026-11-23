@@ -16,3 +16,11 @@ La segunda entrega se realizo el 18/11/2026 y cada corrección sale de la devolu
 - En la devolución se marcó que el replay tenía que aparecer en el gobierno como una transformación intermedia, con sus consecuencias explicadas.
 - Fecha de cierre: el 23/11 se corigio el linaje, donde sacamos el replay y Bronze ahora lee directo desde Landing, y la regla de duplicados, donde explicamos que con el watermark sobre ingest_ts Bronze solo saca los repetidos que llegan con menos de 10 minutos de diferencia y los que llegan más tarde se sacan en Gold, que se vuelve a calcular en batch con todo Silver.
 - Evidencia: Se encuentra en docs/gobierno_preliminar.md, en la regla de duplicados de Controles iniciales y en el linaje de usage_events_stream.
+
+  
+### coalesce(1) en Gold
+- Lo marcamos como prioridad 3
+- Responsable: Mariana Wagner
+- En la devolución se marcó que usar coalesce(1) para Gold no sería adecuado al escalar.
+- Fecha de cierre: el 23/11 se saco el coalesce(1) de org_daily_usage_by_service y de cost_anomaly_mart, y ahora se escriben particionados por year y month como Bronze y Silver.
+- Evidencia: Se encuentra en las celdas 14 y 15 del notebook 02, y en la sección 10 del documento de diseño.
