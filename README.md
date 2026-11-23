@@ -95,7 +95,5 @@ Se necesita Python 3, una cuenta de Google para Colab y una cuenta de Astra DB.
 Las pruebas que hicimos con:idempotencia, archivos desordenados, datos tardíos y conteos de cada capa, que están descritas en docs/pruebas_y_reproducibilidad.md, y sus resultados en las salidas del notebook y en la carpeta evidence/.
 
 ## Limitaciones
-- Las pruebas son manuales, dentro del notebook; no hay pruebas automáticas.
-- La configuración está en las celdas del notebook, no en un archivo aparte.
 - El watermark de Bronze va sobre ingest_ts y no sobre timestamp, porque con los archivos como vienen el watermark sobre timestamp descarta el 98,3 % de los eventos. Por eso Bronze no descarta eventos por su fecha y los tardíos se corrigen cuando Gold se vuelve a calcular en batch.
 - La consulta 2 suma los costos por servicio en Python, porque la tabla de Cassandra no permite agrupar solo por servicio.
