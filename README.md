@@ -97,5 +97,5 @@ Las pruebas que hicimos con:idempotencia, archivos desordenados, datos tardíos 
 ## Limitaciones
 - Las pruebas son manuales, dentro del notebook; no hay pruebas automáticas.
 - La configuración está en las celdas del notebook, no en un archivo aparte.
-- Los eventos se envían ordenados por timestamp, porque con los archivos desordenados el watermark de 10 minutos descarta el 98,3 % de los eventos.
+- El watermark de Bronze va sobre ingest_ts y no sobre timestamp, porque con los archivos como vienen el watermark sobre timestamp descarta el 98,3 % de los eventos. Por eso Bronze no descarta eventos por su fecha y los tardíos se corrigen cuando Gold se vuelve a calcular en batch.
 - La consulta 2 suma los costos por servicio en Python, porque la tabla de Cassandra no permite agrupar solo por servicio.
