@@ -8,7 +8,7 @@ Las reglas que aplicamos son las siguentes:
 - Event_id no nulo: si un evento no tiene event_id va a Quarantine con el motivo event_id_nulo. En los datos no encontramos ninguno.
 - Costo: los eventos con cost_usd_increment menor a -0,01 van a Quarantine con el motivo cost_usd_increment_menor_a_-0.01. Son 211 eventos, es decir el 0,49 %, quedando asi en Silver quedan 42.989.
 - Unit: cuando  falta, decidimos completarlos según la métrica y lo marcamos con unit_imputed.Fueron 2.069 y en Silver no queda ninguna vacía.
-- Duplicados: los sacamos en Bronze por event_id con un watermark de 10 minutos, y quedan 43.200 eventos.
+- Duplicados: los sacamos en Bronze por event_id con un watermark de 10 minutos sobre ingest_ts, y quedan 43.200 eventos. Como el watermark va sobre la hora de llegada, Bronze solo encuentra los repetidos que llegan con menos de 10 minutos de diferencia; los que lleguen más tarde se sacan en Gold, que se vuelve a calcular en batch con todo Silver y vuelve a sacar los repetidos por event_id.
 - Billing: los credits nulos los tomamos como 0 y los marcamos con credits_imputed, las facturas con subtotal negativo las marcamos con is_credit  y las que tengan tasa de cambio nula o menor o igual a 0 van a Quarantine con el motivo exchange_rate_nula_o_no_positiva. No hubo ninguna, por lo cual las 240 facturas pasan a Silver.
 
 Además hicimos las siguentes pruebas:
@@ -43,7 +43,7 @@ usage_events_stream:
 - Landing: los 120 archivos JSONL originales, en data/extracted/datalake/landing/usage_events_stream.
 - Bronze: data/bronze/usage_events_stream, leído con Structured Streaming directo desde los archivos de Landing, con watermark sobre ingest_ts.
 - Silver: data/silver/usage_events, unido con customers_orgs de Bronze. Los rechazados van a data/quarantine/usage_events.
-- Gold: data/gold/org_daily_usage_by_service, que suma los eventos de Silver por organización, día y servicio.
+- Gold: data/gold/org_daily_usage_by_service, que se vuelve a calcular en batch con todo Silver: saca los eventos repetidos por event_id y los suma por organización, día y servicio, usando la fecha del evento. Así los eventos que llegan tarde también quedan en el día que corresponde.
 - Gold: data/gold/cost_anomaly_mart, que se calcula a partir de org_daily_usage_by_service.
 - Serving: la tabla cloud_provider.org_daily_usage_by_service en Cassandra/AstraDB, cargada desde Gold.
 
