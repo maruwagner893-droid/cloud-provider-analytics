@@ -35,6 +35,7 @@ Las pruebas las hicimos a mano dentro del notebook, sin una carpeta tests/:
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, y Bronze se mantuvo en 43.200 eventos. Silver también se mantuvo en 42.989.
 - Archivos desordenados: con el watermark sobre timestamp y los archivos como vienen en el dataset pasaron alrededor de 733 de 43.200 eventos. Para tener encuetna el número exacto cambia levemente entre ejecuciones, porque depende del orden en que Spark lee los archivos. Con el watermark sobre ingest_ts, Bronze recibe los 43.200.
 - Datos tardíos: en una prueba aparte, con un watermark sobre timestamp, un evento con fecha anterior al watermark se descarta y la métrica numRowsDroppedByWatermark marca 1. En Bronze el watermark va sobre ingest_ts, así que ahí no se descartan eventos por su fecha.
+- Conteos de cada capa: Bronze 43.200, Silver 42.989, Gold 11.050 filas y Cassandra 11.050 filas, con la misma suma de requests en Gold y en Cassandra.
 - Las dos consultas CQL devuelven resultados.
 
 Para la limpieza, el notebook solo borra lo que crean las pruebas: la carpeta de la prueba de datos tardíos y el archivo repetido de la prueba de idempotencia. No hay un procedimiento para reiniciar todo el pipeline; en Colab se logra abriendo una sesión nueva.
