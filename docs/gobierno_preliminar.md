@@ -21,7 +21,7 @@ A cada registro le agregamos columnas que indican de dónde viene y cuándo se p
 
 Metadatos de ingesta, que se agregan en Bronze a las cuatro fuentes que procesamos: los maestros customers_orgs , users  y billing_monthly , y los eventos de usage_events_stream :
 - ingest_ts: fecha y hora en que el registro se cargó en Bronze.
-- source_file: Es el nombre del archivo del que se leyó el registro. En los maestros es el CSV de Landingy en los eventos es el archivo JSONL original de Landing (events_part_XXXX.jsonl).
+- source_file: Es el nombre del archivo del que se leyó el registro. En los maestros es el CSV de Landing y en los eventos es el archivo JSONL original de Landing (events_part_XXXX.jsonl).
 Metadatos del esquema:
 - schema_version: viene en cada evento e indica la versión del esquema. Los eventos de la versión 1 no traen carbon_kg, por lo cual queda nula en ellos. Ademas genai_tokens solo viene en los eventos de la versión 2 del servicio genai, por eso en el resto queda nula.
 
@@ -86,5 +86,5 @@ Las evidencias de lo que se describe en este documento están en la carpeta evid
 - evidence/01_hallazgos_calidad/hallazgos.md:Aca se muestron lo problemas de calidad encontrados en la exploración de los datos.
 - evidence/02_decisiones/decisiones.md: Son las decsiones que tomamos, como los umbrales de Quarantine, el watermark, el particionado y el método de anomalías.
 - evidence/registro_calidad/registro_calidad.md: Son las reglas de calidad de cada tabla.
-- evidence/04_pipeline_spark/: Aca se encuentran las capturas de la ejecución del pipeline. Muestran la ingesta en Bronze , el replay ordenado , la idempotencia , Silver y Quarantine , Gold , la prueba con archivos desordenados , las rutas y tamaños de cada capa , el mart de anomalías  y la prueba controlada de datos tardíos (Evidencia de late data).
+- evidence/04_pipeline_spark/: Aca se encuentran las capturas de la ejecución del pipeline. Muestran la ingesta en Bronze , el rango de fechas de los archivos originales, la idempotencia , Silver y Quarantine , Gold , la prueba con archivos desordenados , las rutas y tamaños de cada capa , el mart de anomalías  y la prueba controlada de datos tardíos (Evidencia de late data).
 - evidence/03_serving_cassandra/: capturas de la carga en Cassandra/AstraDB , las dos consultas  y el keyspace en Astra.
