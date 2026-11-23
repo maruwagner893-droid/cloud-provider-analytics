@@ -35,6 +35,7 @@ Las pruebas las hicimos a mano dentro del notebook, sin una carpeta tests/:
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, y Bronze se mantuvo en 43.200 eventos. Silver también se mantuvo en 42.989.
 - Archivos desordenados: con el watermark sobre timestamp y los archivos como vienen en el dataset pasaron alrededor de 733 de 43.200 eventos. Para tener encuetna el número exacto cambia levemente entre ejecuciones, porque depende del orden en que Spark lee los archivos. Con el watermark sobre ingest_ts, Bronze recibe los 43.200.
 - Datos tardíos: en una prueba aparte, con un watermark sobre timestamp, un evento con fecha anterior al watermark se descarta y la métrica numRowsDroppedByWatermark marca 1. En Bronze el watermark va sobre ingest_ts, así que ahí no se descartan eventos por su fecha.
+- Watermark sobre ingest_ts y repetidos tardíos: con los mismos eventos de la prueba de datos tardíos, pero con el watermark sobre ingest_ts como en Bronze, entran los 4 eventos y no se descarta ninguno. Ademas agregamos a Silver 209 eventos repetidos y Gold sigue dando 11.050 filas y 42.989 eventos, porque calcular_gold saca los repetidos por event_id.
 - Conteos de cada capa: Bronze 43.200, Silver 42.989, Gold 11.050 filas y Cassandra 11.050 filas, con la misma suma de requests en Gold y en Cassandra.
 - Las dos consultas CQL devuelven resultados.
 
