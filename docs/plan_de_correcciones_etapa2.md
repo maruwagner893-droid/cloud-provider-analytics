@@ -2,7 +2,7 @@
 La segunda entrega se realizo el 18/11/2026 y cada corrección sale de la devolución de ese día. 
 
 ### Ingesta desde los archivos originales
-- Prioridad 1
+- LO Marcamos como prioridad 1
 - Responsable: Mariana Wagner
 - Fecha de cierre: 23/11
 -En la devolucion se marco que Bronze no leía los 120 archivos originales, sino un replay ordenado por timestamp. Eso evitaba el problema de los datos tardíos en vez de resolverlo.
@@ -24,3 +24,11 @@ La segunda entrega se realizo el 18/11/2026 y cada corrección sale de la devolu
 - En la devolución se marcó que usar coalesce(1) para Gold no sería adecuado al escalar.
 - Fecha de cierre: el 23/11 se saco el coalesce(1) de org_daily_usage_by_service y de cost_anomaly_mart, y ahora se escriben particionados por year y month como Bronze y Silver.
 - Evidencia: Se encuentra en las celdas 14 y 15 del notebook 02, y en la sección 10 del documento de diseño.
+
+  
+### Pruebas automáticas y configuración
+- Lo marcamos como prioridad 1
+- Responsable: Mariana Wagner
+- En la devolución se marcó que las pruebas eran manuales dentro del notebook, que no había pruebas automáticas y que la configuración estaba en las celdas.
+- Fecha de cierre: el 23/11 se pasaron las rutas y los parámetros a config/pipeline.yml, que lee el notebook, se llevó el cálculo de Gold a src/gold.py y se armó tests/test_pipeline.py, que hace 21 verificaciones con un solo comando: conteos de cada capa, reglas de calidad, Gold, repetidos, watermark sobre ingest_ts e idempotencia.
+- Evidencia: Se encuentra en config/pipeline.yml, src/gold.py, tests/test_pipeline.py, la última celda del notebook 02 y la captura 13_pruebas_automaticas.png de evidence/04_pipeline_spark/.
