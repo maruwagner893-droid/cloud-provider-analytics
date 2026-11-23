@@ -7,8 +7,8 @@ Ademas la versión de PySpark que usamos es la 4.0.5, y es la única que está f
 
 ## Configuración
 La configuración está definida en las celdas del notebook y Los valores que usamos son:
-- Spark: se ejecuta en modo local (local[*]) con 8 particiones de shuffle, porque el volumen de datos es chico. Solo en el replay de la celda 9 se pasan a 120 y se apaga la optimización adaptativa, para que salgan 120 archivos ordenados, y después se vuelve a 8. La zona horaria de la sesión es UTC, para que las fechas de los eventos se calculen siempre igual.
-- Streaming: Bronze y Silver leen 10 archivos por micro-lote, usan el trigger availableNow, que procesa todo lo pendiente y termina, y cada consulta tiene su propio checkpoint en data/checkpoints/bronze_events y data/checkpoints/silver_events. Bronze aplica un watermark de 10 minutos.
+- Spark: se ejecuta en modo local (local[*]) con 8 particiones de shuffle, porque el volumen de datos es chico. La zona horaria de la sesión es UTC, para que las fechas de los eventos se calculen siempre igual.
+- Streaming: Bronze y Silver leen 10 archivos por micro-lote, usan el trigger availableNow, que procesa todo lo pendiente y termina, y cada consulta tiene su propio checkpoint en data/checkpoints/bronze_events y data/checkpoints/silver_events. Bronze lee directo los archivos de Landing y aplica un watermark de 10 minutos sobre ingest_ts, la hora de llegada.
 - Reglas: el umbral de costo para Quarantine es -0,01 y el factor del método IQR para las anomalías es 1,5.
 - Cassandra: el token se lee del secreto ASTRA_TOKEN de Colab, el bundle se busca en /content/ y la conexión usa el keyspace cloud_provider.
 
@@ -33,9 +33,7 @@ La conexión a Cassandra/AstraDB no tiene un control propio: por eso se tiene qu
 Las pruebas las hicimos a mano dentro del notebook, sin una carpeta tests/:
 
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, y Bronze se mantuvo en 43.200 eventos. Silver también se mantuvo en 42.989.
-- Archivos desordenados: con los archivos tal como vienen en el dataset pasaron  alrededor de 733 de 43.200 eventos. Para tener encuetna el número exacto cambia levemente entre ejecuciones, porque depende del orden en que Spark lee los archivos.
-- Datos tardíos: un evento con timestamp anterior al watermark se descarta y la métrica numRowsDroppedByWatermark marca 1.
-- Conteos de cada capa: Bronze 43.200, Silver 42.989, Gold 11.050 filas y Cassandra 11.050 filas, con la misma suma de requests en Gold y en Cassandra.
+- Archivos desordenados: con el watermark sobre timestamp y los archivos como vienen en el dataset pasaron alrededor de 733 de 43.200 eventos. Para tener encuetna el número exacto cambia levemente entre ejecuciones, porque depende del orden en que Spark lee los archivos. Con el watermark sobre ingest_ts, Bronze recibe los 43.200.
 - Las dos consultas CQL devuelven resultados.
 
 Para la limpieza, el notebook solo borra lo que crean las pruebas: la carpeta de la prueba de datos tardíos y el archivo repetido de la prueba de idempotencia. No hay un procedimiento para reiniciar todo el pipeline; en Colab se logra abriendo una sesión nueva.
