@@ -26,6 +26,9 @@ La solución implementa una Arquitectura Lambda que combina:
 ```
 cloud-provider-analytics/
 │
+├── config/
+│   └── pipeline.yml: rutas y parámetros del pipeline
+│
 ├── data/  
 │   ├── cloud_provider_challenge_dataset_v1.zip  
 │   ├── landing/
@@ -41,7 +44,10 @@ cloud-provider-analytics/
 │   └── Exploración de datos y pipeline de la etapa 2
 │
 ├── src/
-│   └── Script CQL de la capa de Serving
+│   └── Cálculo de Gold (gold.py) y script CQL de la capa de Serving
+│
+├── tests/
+│   └── Pruebas automáticas del pipeline (test_pipeline.py)
 │
 └── evidence/
     └── Evidencias, capturas y registro de decisiones
@@ -88,7 +94,7 @@ Se necesita Python 3, una cuenta de Google para Colab y una cuenta de Astra DB.
  - Crear una base de datos en Astra DB:astra.datastax.com y, desde el portal, agregar un keyspace con el nombre cloud_provider
 - Generar un token con el rol Database Administrator y descargar el secure connect bundle de la base, sin cambiarle el nombre
 - Subir el secure connect bundle a /content/ en Colab y guardar el token en los Secretos de Colab con el nombre ASTRA_TOKEN, activando el acceso del notebook
-6. Ejecutar todas las celdas desde Entorno de ejecución, Ejecutar todas. El notebook tarda varios minutos.
+6. Desde el menú Entorno de ejecución, elegir Ejecutar todas. El notebook tarda varios minutos. La última celda corre las pruebas automáticas y tiene que terminar con: Todas las pruebas pasaron. Las rutas y los parámetros:watermark, archivos por micro-lote, regla de costo y keyspace, se leen de config/pipeline.yml.
 7. Si Colab se reinicia, hay que volver a subir el bundle a /content/, porque esa carpeta se borra.
  
 ## Pruebas
