@@ -141,7 +141,7 @@ flowchart TD
     end
 
     subgraph GZ["Gold Zone — Métricas de Negocio"]
-        GLD["org_daily_usage_by_service\ncost_anomaly_mart"]
+       GLD["org_daily_usage_by_service\ncost_anomaly_mart\norg_service_cost_14d"]
     end
 
     subgraph QUAR["Cuarentena"]
