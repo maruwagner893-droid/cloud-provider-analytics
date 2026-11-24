@@ -102,4 +102,4 @@ Las pruebas que hicimos con:idempotencia, archivos desordenados, datos tardíos 
 
 ## Limitaciones
 - El watermark de Bronze va sobre ingest_ts y no sobre timestamp, porque con los archivos como vienen el watermark sobre timestamp descarta el 98,3 % de los eventos. Por eso Bronze no descarta eventos por su fecha y los tardíos se corrigen cuando Gold se vuelve a calcular en batch.
-- La consulta 2 suma los costos por servicio en Python, porque la tabla de Cassandra no permite agrupar solo por servicio.
+- En la tabla de la consulta 2 el costo es parte de la clave, así que si se recalcula la misma ventana de 14 días con datos distintos hay que borrar antes esa partición en Cassandra; si no, quedan filas con el costo anterior.
