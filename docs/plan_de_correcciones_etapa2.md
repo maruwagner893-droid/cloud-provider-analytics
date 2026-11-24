@@ -32,3 +32,10 @@ La segunda entrega se realizo el 18/11/2026 y cada corrección sale de la devolu
 - En la devolución se marcó que las pruebas eran manuales dentro del notebook, que no había pruebas automáticas y que la configuración estaba en las celdas.
 - Fecha de cierre: el 23/11 se pasaron las rutas y los parámetros a config/pipeline.yml, que lee el notebook, se llevó el cálculo de Gold a src/gold.py y se armó tests/test_pipeline.py, que hace 21 verificaciones con un solo comando: conteos de cada capa, reglas de calidad, Gold, repetidos, watermark sobre ingest_ts e idempotencia.
 - Evidencia: Se encuentra en config/pipeline.yml, src/gold.py, tests/test_pipeline.py, la última celda del notebook 02 y la captura 13_pruebas_automaticas.png de evidence/04_pipeline_spark/.
+
+
+### Consulta 2 de Cassandra
+- Lo marcamos como prioridad 2
+- Responsable: Mariana Wagner
+- Fecha de cierre: el 23/11 la consulta 2 dejó de sumar y ordenar en Python. Armamos en Gold el costo de cada servicio en los últimos 14 días y en Cassandra la tabla org_top_services_14d, ordenada por costo de mayor a menor, así la consulta trae el resultado listo.
+- Evidencia: Se encuentra en src/serving_cassandra.cql, en el notebook 02 y en las capturas 03a a 03d de evidence/03_serving_cassandra/.
