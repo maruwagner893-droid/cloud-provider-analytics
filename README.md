@@ -98,8 +98,7 @@ Se necesita Python 3, una cuenta de Google para Colab y una cuenta de Astra DB.
 7. Si Colab se reinicia, hay que volver a subir el bundle a /content/, porque esa carpeta se borra.
  
 ## Pruebas
-Las pruebas que hicimos con:idempotencia, archivos desordenados, datos tardíos y conteos de cada capa, que están descritas en docs/pruebas_y_reproducibilidad.md, y sus resultados en las salidas del notebook y en la carpeta evidence/.
-
+ Las pruebas automáticas están en tests/test_pipeline.py. Se corren después de ejecutar el notebook 02 y la última celda del notebook ya las ejecuta sola. Si se quiere correr desde otra computadora, hay que pararse en la carpeta del repositorio y ejecutar python tests/test_pipeline.py. Ademas las pruebas revisan los conteos de cada capa, las reglas de calidad, Gold, que Gold saque los eventos repetidos, el watermark sobre ingest_ts y la idempotencia, y al final dicen si pasaron todas. El detalle se encuentra en docs/pruebas_y_reproducibilidad.md.
 ## Limitaciones
 - El watermark de Bronze va sobre ingest_ts y no sobre timestamp, porque con los archivos como vienen el watermark sobre timestamp descarta el 98,3 % de los eventos. Por eso Bronze no descarta eventos por su fecha y los tardíos se corrigen cuando Gold se vuelve a calcular en batch.
 - En la tabla de la consulta 2 el costo es parte de la clave, así que si se recalcula la misma ventana de 14 días con datos distintos hay que borrar antes esa partición en Cassandra; si no, quedan filas con el costo anterior.
