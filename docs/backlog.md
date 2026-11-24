@@ -9,7 +9,7 @@ En este backlog dejamos lo que nos falta para la entrega final del 09/12 donde l
 - Ademas se tiene que crear en Cassandra una tabla para cada una de las cinco consultas. Hoy están las tablas de la consulta 1 y de la consulta 2.
 - Cargar cost_anomaly_mart en Cassandra para poder consultarlo.
 - Completar el documento de gobierno con seguridad y monitoreo.
-- Pasar la configuración del notebook a un archivo aparte, agregar manejo de errores, armar pruebas en una carpeta tests/ y una forma de limpiar y reiniciar el pipeline.
+- Agregar manejo de errores y una forma de limpiar y reiniciar el pipeline.
 - Armar el diccionario de datos, la presentación y el video.
 - Probar el README desde cero con otra cuenta, para ver que cualquiera lo pueda ejecutar.
 
