@@ -15,6 +15,7 @@ rutas:
   gold_uso: data/gold/org_daily_usage_by_service
   gold_anomalias: data/gold/cost_anomaly_mart
   gold_servicios_14d: data/gold/org_service_cost_14d
+  gold_revenue: data/gold/revenue_by_org_month
   checkpoints: data/checkpoints
 
 streaming:
