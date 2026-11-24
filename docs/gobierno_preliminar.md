@@ -44,8 +44,8 @@ usage_events_stream:
 - Bronze: data/bronze/usage_events_stream, leído con Structured Streaming directo desde los archivos de Landing, con watermark sobre ingest_ts.
 - Silver: data/silver/usage_events, unido con customers_orgs de Bronze. Los rechazados van a data/quarantine/usage_events.
 - Gold: data/gold/org_daily_usage_by_service, que se vuelve a calcular en batch con todo Silver: saca los eventos repetidos por event_id y los suma por organización, día y servicio, usando la fecha del evento. Así los eventos que llegan tarde también quedan en el día que corresponde.
-- Gold: data/gold/cost_anomaly_mart, que se calcula a partir de org_daily_usage_by_service.
-- Serving: la tabla cloud_provider.org_daily_usage_by_service en Cassandra/AstraDB, cargada desde Gold.
+- Gold: data/gold/org_service_cost_14d, que suma el costo de cada servicio por organización en los últimos 14 días, a partir de org_daily_usage_by_service.
+- Serving: las tablas cloud_provider.org_daily_usage_by_service y cloud_provider.org_top_services_14d en Cassandra/AstraDB, cargadas desde Gold.
 
 billing_monthly:
 
