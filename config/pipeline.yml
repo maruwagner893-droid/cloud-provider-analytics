@@ -17,6 +17,8 @@ rutas:
   gold_servicios_14d: data/gold/org_service_cost_14d
   gold_revenue: data/gold/revenue_by_org_month
   gold_genai: data/gold/genai_tokens_by_org_date
+  silver_tickets: data/silver/support_tickets
+  gold_tickets: data/gold/tickets_by_org_date
   checkpoints: data/checkpoints
 
 streaming:
