@@ -47,6 +47,12 @@ revisar("costos menores al mínimo en Silver:",
 revisar("unit nulos en Silver:", silver.filter(F.col("unit").isNull()).count(), 0)
 revisar("Quarantine sin motivo:", quarantine.filter(F.col("quarantine_reason").isNull()).count(), 0)
 revisar("Silver billing:", spark.read.parquet(RUTAS["silver_billing"]).count(), 240)
+tickets = spark.read.parquet(RUTAS["silver_tickets"])
+bronze_tickets = spark.read.parquet(os.path.join(RUTAS["bronze"], "support_tickets"))
+revisar("Silver tickets:", tickets.count(), 1000)
+revisar("Tickets abiertos:", tickets.filter("is_open").count(), 240)
+revisar("Tickets sin organización:", tickets.filter(F.col("industry").isNull()).count(), 0)
+revisar("Tickets en cuarentena (Bronze - Silver):", bronze_tickets.count() - tickets.count(), 0)
 
 # 3) Gold
 gold = spark.read.parquet(RUTAS["gold_uso"])
