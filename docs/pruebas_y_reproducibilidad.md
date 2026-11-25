@@ -30,7 +30,7 @@ Para los errores decidimos apoyarnos en los controles sobre los datos y sobre la
 La conexión a Cassandra/AstraDB no tiene un control propio: por eso se tiene que tener encuenta que si falta el secure connect bundle o el token, la celda falla y hay que revisar el paso 5 del README.
 
 ## Pruebas
-Las pruebas automáticas están en tests/test_pipeline.py. Estas se corren después de ejecutar el notebook 02, ademas la última celda del notebook ya las ejecuta sola. Hacen 30 verificaciones y al final dicen si todas pasaron; la salida está en evidence/04_pipeline_spark/13_pruebas_automaticas.png.
+Las pruebas automáticas están en tests/test_pipeline.py. Estas se corren después de ejecutar el notebook 02, ademas la última celda del notebook ya las ejecuta sola. Hacen 30 verificaciones y al final dicen si todas pasaron; la salida está en evidence/04_pipeline_spark/13a_pruebas_automaticas.png y 13b_pruebas_automaticas.png.
 
 Además, en el notebook quedaron estas pruebas, que también sirven como evidencia:
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, y Bronze se mantuvo en 43.200 eventos. Silver también se mantuvo en 42.989.
