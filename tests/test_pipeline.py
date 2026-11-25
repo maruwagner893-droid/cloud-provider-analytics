@@ -60,6 +60,12 @@ revisar("Gold:", gold.count(), 11050)
 revisar("Claves únicas en Gold:", gold.select("org_id", "usage_date", "service").distinct().count(), 11050)
 revisar("Suma n_events en Gold:", gold.agg(F.sum("n_events")).first()[0], 42989)
 revisar("Filas del mart de anomalías:", spark.read.parquet(RUTAS["gold_anomalias"]).count(), 11050)
+revisar("Filas del mart de 14 días:", spark.read.parquet(RUTAS["gold_servicios_14d"]).count(), 262)
+revisar("Filas del mart de revenue:", spark.read.parquet(RUTAS["gold_revenue"]).count(), 240)
+revisar("Filas del mart de GenAI:", spark.read.parquet(RUTAS["gold_genai"]).count(), 848)
+gold_tickets = spark.read.parquet(RUTAS["gold_tickets"])
+revisar("Filas del mart de tickets:", gold_tickets.count(), 984)
+revisar("Suma n_tickets en Gold:", gold_tickets.agg(F.sum("n_tickets")).first()[0], 1000)
 
 # 4) Gold saca los repetidos que llegan tarde
 repetidos = silver.filter(F.col("org_id") == "org_xaji0y6d")
