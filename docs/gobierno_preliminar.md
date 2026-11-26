@@ -65,8 +65,10 @@ support_tickets:
 - Bronze: data/bronze/support_tickets.
 - Silver: data/silver/support_tickets, unido con customers_orgs de Bronze. Los rechazados van a data/quarantine/support_tickets.
 - Gold: data/gold/tickets_by_org_date, que cuenta los tickets, los que incumplieron el SLA y los abiertos, y calcula el CSAT promedio por organización, fecha y severidad.
-- Serving: la tabla cloud_provider.tickets_by_org_date en Cassandra/AstraDB. 
+- Serving: la tabla cloud_provider.tickets_by_org_date en Cassandra/AstraDB.
+  
 customers_orgs y users:
+
 - Landing: customers_orgs.csv y users.csv.
 - Bronze: data/bronze/customers_orgs y data/bronze/users. customers_orgs se usa en Silver para enriquecer los eventos  y los tickets.
   
@@ -100,4 +102,4 @@ Las evidencias de lo que se describe en este documento están en la carpeta evid
 - evidence/02_decisiones/decisiones.md: Son las decsiones que tomamos, como los umbrales de Quarantine, el watermark, el particionado y el método de anomalías.
 - evidence/registro_calidad/registro_calidad.md: Son las reglas de calidad de cada tabla.
 - evidence/04_pipeline_spark/: Aca se encuentran las capturas de la ejecución del pipeline. Muestran la ingesta en Bronze , el rango de fechas de los archivos originales, la idempotencia , Silver y Quarantine , Gold , la prueba con archivos desordenados , las rutas y tamaños de cada capa , el mart de anomalías,la prueba controlada de datos tardíos, y las pruebas del watermark sobre ingest_ts y de los repetidos en Gold.
-- evidence/03_serving_cassandra/: capturas de la carga en Cassandra/AstraDB , las dos consultas  y el keyspace en Astra.
+- evidence/03_serving_cassandra/: capturas de la carga en Cassandra/AstraDB , las cinco consultas  y el keyspace en Astra.
