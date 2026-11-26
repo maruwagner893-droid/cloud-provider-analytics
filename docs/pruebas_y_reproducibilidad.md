@@ -26,6 +26,7 @@ Para los errores decidimos apoyarnos en los controles sobre los datos y sobre la
 - mode("overwrite") en las escrituras batch, para poder volver a ejecutar sin duplicar datos.
 - Checkpoints en el streaming, para no volver a procesar archivos que ya se leyeron.
 - Antes de clonar, el notebook  se tiene que verificar si el repositorio ya existe (if not os.path.exists(REPO)).
+- Al terminar la carga de Bronze se muestra consulta.exception(), que da None si el streaming terminó sin errores y si no, muestra el error.
 
 La conexión a Cassandra/AstraDB no tiene un control propio: por eso se tiene que tener encuenta que si falta el secure connect bundle o el token, la celda falla y hay que revisar el paso 5 del README.
 
@@ -35,9 +36,9 @@ Las pruebas automáticas están en tests/test_pipeline.py. Estas se corren despu
 Además, en el notebook quedaron estas pruebas, que también sirven como evidencia:
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, y Bronze se mantuvo en 43.200 eventos. Silver también se mantuvo en 42.989.
 - Archivos desordenados: con el watermark sobre timestamp y los archivos como vienen en el dataset pasaron alrededor de 733 de 43.200 eventos. Para tener encuetna el número exacto cambia levemente entre ejecuciones, porque depende del orden en que Spark lee los archivos. Con el watermark sobre ingest_ts, Bronze recibe los 43.200.
-- Datos tardíos: en una prueba aparte, con un watermark sobre timestamp, un evento con fecha anterior al watermark se descarta y la métrica numRowsDroppedByWatermark marca 1. En Bronze el watermark va sobre ingest_ts, así que ahí no se descartan eventos por su fecha.
-- Watermark sobre ingest_ts y repetidos tardíos: con los mismos eventos de la prueba de datos tardíos, pero con el watermark sobre ingest_ts como en Bronze, entran los 4 eventos y no se descarta ninguno. Ademas agregamos a Silver 209 eventos repetidos y Gold sigue dando 11.050 filas y 42.989 eventos, porque calcular_gold saca los repetidos por event_id.
-- Conteos de cada capa: Bronze 43.200, Silver 42.989, Gold 11.050 filas y Cassandra 11.050 filas, con la misma suma de requests en Gold y en Cassandra.
+- Datos tardíos: en una prueba aparte, con un watermark sobre timestamp, un evento con fecha anterior al watermark se descarta y la métrica numRowsDroppedByWatermark marca 1 - En Bronze el watermark va sobre ingest_ts, así que ahí no se descartan eventos por su fecha.
+- Conteos de cada capa: Bronze 43.200, Silver 42.989, Gold 11.050 filas y Cassandra 11.050 filas, con la misma suma de requests en Gold y en Cassandra. En las otras tablas de Cassandra tambien coinciden las filas con Gold: 262 en la de 14 días, 984 en tickets, 240 en revenue y 848 en GenAI.
+- Las cinco consultas CQL devuelven resultados, las capturas están en evidence/03_serving_cassandra/.
 - Las dos consultas CQL devuelven resultados.
 
-Para la limpieza, el notebook solo borra lo que crean las pruebas: la carpeta de la prueba de datos tardíos y el archivo repetido de la prueba de idempotencia. No hay un procedimiento para reiniciar todo el pipeline; en Colab se logra abriendo una sesión nueva.
+Para la limpieza, la celda 4 del notebook borra todas las salidas del pipeline que están en config/pipeline.yml: Bronze, Silver, Quarantine, Gold y los checkpoints, y deja Landing sin tocar. Los checkpoints se borran junto con los datos, porque si se borra solo el checkpoint se vuelven a procesar los archivos y se duplican los datos. Asi cada vez que se ejecuta todo el notebook arranca de cero. Ademas las pruebas borran sus propias carpetas: la de la prueba de datos tardíos y el archivo repetido de la prueba de idempotencia. La salida de la limpieza está en evidence/04_pipeline_spark/15_limpieza_reinicio.png.
