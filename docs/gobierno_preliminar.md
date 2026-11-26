@@ -48,19 +48,29 @@ usage_events_stream:
 - Gold: data/gold/org_daily_usage_by_service, que se vuelve a calcular en batch con todo Silver: saca los eventos repetidos por event_id y los suma por organización, día y servicio, usando la fecha del evento. Así los eventos que llegan tarde también quedan en el día que corresponde.
 - Gold: data/gold/cost_anomaly_mart, que se calcula a partir de org_daily_usage_by_service.
 - Gold: data/gold/org_service_cost_14d, que suma el costo de cada servicio por organización en los últimos 14 días, a partir de org_daily_usage_by_service.
-- Serving: las tablas cloud_provider.org_daily_usage_by_service y cloud_provider.org_top_services_14d en Cassandra/AstraDB, cargadas desde Gold.
+- Gold: data/gold/genai_tokens_by_org_date, que toma de org_daily_usage_by_service el servicio genai en los días con tokens.
+- Serving: las tablas cloud_provider.org_daily_usage_by_service, cloud_provider.org_top_services_14d y cloud_provider.genai_tokens_by_org_date en Cassandra/AstraDB, cargadas desde Gold.
 
 billing_monthly:
 
 - Landing: billing_monthly.csv.
 - Bronze: data/bronze/billing_monthly.
 - Silver: data/silver/billing_monthly. Los rechazados van a data/quarantine/billing_monthly.
-  
+ - Gold: data/gold/revenue_by_org_month, que suma por organización y mes el subtotal, los créditos y los impuestos pasados a USD.
+- Serving: la tabla cloud_provider.revenue_by_org_month en Cassandra/AstraDB.
+
+support_tickets:
+
+- Landing: support_tickets.csv.
+- Bronze: data/bronze/support_tickets.
+- Silver: data/silver/support_tickets, unido con customers_orgs de Bronze. Los rechazados van a data/quarantine/support_tickets.
+- Gold: data/gold/tickets_by_org_date, que cuenta los tickets, los que incumplieron el SLA y los abiertos, y calcula el CSAT promedio por organización, fecha y severidad.
+- Serving: la tabla cloud_provider.tickets_by_org_date en Cassandra/AstraDB. 
 customers_orgs y users:
 - Landing: customers_orgs.csv y users.csv.
-- Bronze: data/bronze/customers_orgs y data/bronze/users. customers_orgs se usa en Silver para enriquecer los eventos.
-- 
-Para saber de dónde viene un registro usamos source_file, que indica el archivo del que se leyó, y la clave de cada tabla:como  event_id en los eventos, invoice_id en billing, org_id en clientes y user_id en usuarios.Ademas en Gold y en Cassandra los datos ya están agregados, por lo cual se siguen por su grano: org_id, usage_date y service.
+- Bronze: data/bronze/customers_orgs y data/bronze/users. customers_orgs se usa en Silver para enriquecer los eventos  y los tickets.
+  
+Para saber de dónde viene un registro usamos source_file, que indica el archivo del que se leyó, y la clave de cada tabla:como  event_id en los eventos,invoice_id en billing, ticket_id en tickets, org_id en clientes y user_id en usuarios.Ademas en Gold y en Cassandra los datos ya están agregados, por lo cual se siguen por su grano: org_id, usage_date y service.
 
 ## Responsabilidades
 Las responsabilidades decidimos  dividirlos en dos: En primer lugar tenemos las áreas de negocio, que son dueñas de los datos que usan, y  en segundo los roles del equipo, que se encargan de construir y mantener el pipeline.
