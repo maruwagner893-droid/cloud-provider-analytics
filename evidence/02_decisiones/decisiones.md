@@ -10,12 +10,17 @@ Kappa solo utiliza procesamiento en tiempo real (streaming), con un único camin
 En billing_monthly hay 13 facturas con subtotal negativo, donde la más baja es de -1671.83. Creemos que son créditos del proveedor, como devoluciones o descuentos, así que decidimos no las mandarlas a Quarantine, si no que las dejamos y marcamos con is_credit. Si las sacáramos, FinOps vería un gasto mayor al real. Igual no podemos asegurar que no sean errores, por eso quedan marcadas para poder revisarlas.
 
 En usage_events_stream encontramos cost_usd_increment con valores hasta -154.46. A diferencia de billing, acá no tiene sentido de negocio: un recurso de nube no puede generar un consumo físico negativo, por eso la tratamos  como anomalías yla enviamos  a Quarantine.Concretamente, solo van a Quarantine los eventos con cost_usd_increment menor a -0,01 que son en total 211 eventos; los 5 eventos con costo entre -0,01 y 0 pasan a Silver.
+
 ## Se particiona por year/month
 
 Particionamos los eventos solo por year/month, lo cual nos deja 2 carpetas de 20.880 y 22.320 eventos, y los 3 maestros que pasamos a Bronze  que son :clientes, usuarios y billing, también lo guardamos particionados, porque sirve para procesar y reprocesar los datos por período,  donde las consultas por organización las hacen FinOps, Soporte y Producto sobre Cassandra/AstraDB, no sobre los archivos del data lake.
 
-Para los maestros elegimos columnas de baja cardinalidad, para que la partición sirva para filtrar sin generar muchas carpetas: customers_orgs por plan_tier  donde queda en 4 carpetas, users por role en 6 carpetas y billing_monthly por month en 3 carpetas de 80 filas, una por  cada mes facturado. Como las tablas son chicas, usamos coalesce(1) para escribir un solo archivo por carpeta; los tamaños los ponemos como evidencia en la salida del notebook 02.
+   Para los maestros elegimos columnas de baja cardinalidad, para que la partición sirva para filtrar sin generar muchas carpetas: customers_orgs por plan_tier  donde queda en 4 carpetas, users por role en 6 carpetas, billing_monthly por month en 3 carpetas de 80 filas, una por  cada mes facturado, y support_tickets por severity en 4 carpetas. Como las tablas son chicas, usamos coalesce(1) para escribir un solo archivo por carpeta; los tamaños los ponemos como evidencia en la salida del notebook 02.
 
+## El coalesce(1) queda solo en tablas chicas y en cada micro-lote de Silver
+
+  En Gold sacamos el coalesce(1) porque se aplicaba a toda la tabla de una vez, y si crecen los datos una sola tarea tendría que escribir todo. En Silver y Quarantine de eventos lo dejamos porque se aplica dentro de cada micro-lote del foreachBatch, y cada micro-lote lee como máximo 10 archivos de Bronze por el maxFilesPerTrigger, asi que aunque crezcan los datos cada lote sigue siendo chico. Sin el coalesce(1) cada micro-lote podría escribir varios archivos por mes y terminar en muchos archivos chicos. Silver de tickets y los marts de Gold se escriben sin coalesce(1).
+  
 ## Los nulos de carbon_kg no van a Quarantine
 
 En la exploración se verificamos que los 10.800 registros con carbon_kg nulo coinciden exactamente con los registros de schema_version = 1. Eso indica que es una evolución del esquema y no un error aleatorio, donde la versión 1 simplemente no incluía ese campo. Por lo que mandarlos a Quarantine eliminaría una cuarta parte del historial de eventos sin razón válida.
