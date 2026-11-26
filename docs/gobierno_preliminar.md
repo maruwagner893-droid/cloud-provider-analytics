@@ -10,6 +10,7 @@ Las reglas que aplicamos son las siguentes:
 - Unit: cuando  falta, decidimos completarlos según la métrica y lo marcamos con unit_imputed.Fueron 2.069 y en Silver no queda ninguna vacía.
 - Duplicados: los sacamos en Bronze por event_id con un watermark de 10 minutos sobre ingest_ts, y quedan 43.200 eventos. Como el watermark va sobre la hora de llegada, Bronze solo encuentra los repetidos que llegan con menos de 10 minutos de diferencia; los que lleguen más tarde se sacan en Gold, que se vuelve a calcular en batch con todo Silver y vuelve a sacar los repetidos por event_id.
 - Billing: los credits nulos los tomamos como 0 y los marcamos con credits_imputed, las facturas con subtotal negativo las marcamos con is_credit  y las que tengan tasa de cambio nula o menor o igual a 0 van a Quarantine con el motivo exchange_rate_nula_o_no_positiva. No hubo ninguna, por lo cual las 240 facturas pasan a Silver.
+- Tickets: los tickets sin ticket_id o sin created_at van a Quarantine con el motivo ticket_id_nulo o created_at_nulo. No hubo ninguno, por lo cual los 1000 tickets pasan a Silver. Los nulos de resolved_at y csat se mantienen como nulos.
 
 Además hicimos las siguentes pruebas:
 - Idempotencia: volvimos a ejecutar el proceso sin archivos nuevos y con un archivo repetido, donde bronze se mantuvo en 43.200 en los dos casos y silver en 42.989.
@@ -19,7 +20,7 @@ Además hicimos las siguentes pruebas:
 ## Metadatos
 A cada registro le agregamos columnas que indican de dónde viene y cuándo se procesó, para poder rastrearlo y controlarlo.
 
-Metadatos de ingesta, que se agregan en Bronze a las cuatro fuentes que procesamos: los maestros customers_orgs , users  y billing_monthly , y los eventos de usage_events_stream :
+Metadatos de ingesta, que se agregan en Bronze a las cinco fuentes que procesamos: los maestros customers_orgs , users , billing_monthly y support_tickets, y los eventos de usage_events_stream:
 - ingest_ts: fecha y hora en que el registro se cargó en Bronze.
 - source_file: Es el nombre del archivo del que se leyó el registro. En los maestros es el CSV de Landing y en los eventos es el archivo JSONL original de Landing (events_part_XXXX.jsonl).
 Metadatos del esquema:
@@ -30,6 +31,7 @@ Marcas de calidad, que se agregan en Silver:
 - value_missing: el evento no trae value.
 - credits_imputed: en billing, teniamo que credits venía nulo y se tomó como 0.
 - is_credit: en billing, la factura tiene subtotal negativo.
+- is_open: en tickets, el ticket no tiene resolved_at, es decir que sigue abierto.
 
 Metadatos de Quarantine:
 - quarantine_reason: Es el  motivo por el que se rechazó el registro.
