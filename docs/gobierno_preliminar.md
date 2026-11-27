@@ -2,8 +2,7 @@
 # Gobierno preliminar
 
 ## Controles iniciales
-Los controles los aplicamos en cada capa del pipeline, pero no todos funcionan de la misma forma. Los registros que no cumplen una regla de rechazo van a Quarantine junto con el motivo, en la columna quarantine_reason. Los datos que llegan incompletos se completan y les dejamos una marca para saber cuáles fueron imputados. Ademas loos eventos duplicados y los que llegan tarde se eliminan.
-
+Los controles los aplicamos en cada capa del pipeline, pero no todos funcionan de la misma forma. Los registros que no cumplen una regla de rechazo van a Quarantine junto con el motivo, en la columna quarantine_reason. Los datos que llegan incompletos se completan y les dejamos una marca para saber cuáles fueron imputados. Ademas los eventos duplicados se eliminan, y los que llegan tarde no se descartan sino que se suman en Gold en el día que les corresponde.
 Las reglas que aplicamos son las siguentes:
 - Event_id no nulo: si un evento no tiene event_id va a Quarantine con el motivo event_id_nulo. En los datos no encontramos ninguno.
 - Costo: los eventos con cost_usd_increment menor a -0,01 van a Quarantine con el motivo cost_usd_increment_menor_a_-0.01. Son 211 eventos, es decir el 0,49 %, quedando asi en Silver quedan 42.989.
@@ -36,7 +35,7 @@ Marcas de calidad, que se agregan en Silver:
 Metadatos de Quarantine:
 - quarantine_reason: Es el  motivo por el que se rechazó el registro.
 - quarantine_ts: fecha y hora en que el registro se envió a Quarantine.
-- 
+ 
 ## Linaje
 El linaje muestra de dónde sale cada dato y por qué capas pasa. Todas las rutas son carpetas dentro de data/, que el notebook crea al ejecutarse a partir del zip del dataset.
 
@@ -103,6 +102,7 @@ Para saber si el pipeline funcionó bien miramos las salidas que deja el propio 
 - Silver y Quarantine: despues de cada carga se muestran las filas que quedaron en Silver, las que fueron a Quarantine y el porcentaje de inválidos, junto con la cantidad por quarantine_reason. Hoy es 0,49 %, por debajo del 5 % que pusimos como objetivo.
 - Gold y Cassandra: despues de cargar cada tabla se compara la cantidad de filas de Gold con las de Cassandra y se cuentan los errores de escritura. En las cinco tablas coinciden y hay 0 errores.
 - Pruebas: la última celda corre las 31 verificaciones de tests/test_pipeline.py y dice si pasaron todas.
+  
 Para los objetivos de tiempo del documento de diseño hicimos dos mediciones. Para los 60 segundos, la prueba de latencia copia tres archivos originales mientras el stream está corriendo y mide cuánto pasa desde que llega cada archivo, con _metadata.file_modification_time, hasta que sus eventos ya están procesados, y en todos los casos tardó menos de 60 segundos; esta prueba tambien está en tests/test_pipeline.py. Para los 30 minutos, despues de la última carga en Cassandra se mide el tiempo desde que entró el primer evento a Bronze hasta ese momento, y tardó menos de 30 minutos, aun contando las celdas de prueba que están en el medio. Las capturas están en evidence/04_pipeline_spark/16_prueba_latencia.png y 17_tiempo_hasta_cassandra.png.
 
 ## Evidencias
