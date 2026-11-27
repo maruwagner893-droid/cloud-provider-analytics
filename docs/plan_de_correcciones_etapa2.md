@@ -23,7 +23,7 @@ La segunda entrega se realizo el 18/11/2026 y cada corrección sale de la devolu
 - Responsable: Mariana Wagner
 - En la devolución se marcó que usar coalesce(1) para Gold no sería adecuado al escalar.
 - Fecha de cierre: el 23/11 se saco el coalesce(1) de org_daily_usage_by_service y de cost_anomaly_mart, y ahora se escriben particionados por year y month como Bronze y Silver.
-- Evidencia: Se encuentra en las celdas 16 y 17 del notebook 02, y en la sección 10 del documento de diseño.
+- Evidencia: Se encuentra en las celdas 16 y 17 del notebook 02,y en decisiones.md, en la sección del coalesce(1).
 
   
 ### Pruebas automáticas y configuración
