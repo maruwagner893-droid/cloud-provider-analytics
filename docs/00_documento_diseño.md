@@ -116,7 +116,7 @@ En customers_orgs encontramos un nps_score con valor 101. El NPS válido va de -
 
 ## 4. Arquitectura de alto nivel
 
-Los datos nacen como archivos en formato CSV y JSONL. Primero llegan a la zona de Landing sin modificarse. Después, usando PySpark, se procesan y llevan a Bronze, donde se les asigna el tipo de dato correcto, se unifica el esquema v1/v2 y se agregan metadatos de ingesta. Luego pasan a Silver, donde se realiza la limpieza: se arreglan los nulos y se unen las tablas. En Gold se calculan las métricas de costo y uso diario por organización y servicio, el revenue mensual, los tickets por día y los tokens de GenAI, y se marcan las anomalías de costo.
+Los datos nacen como archivos en formato CSV y JSONL. Primero llegan a la zona de Landing sin modificarse. Después, usando PySpark, se procesan y llevan a Bronze, donde se les asigna el tipo de dato correcto, se unifica el esquema v1/v2 y se agregan metadatos de ingesta. Luego pasan a Silver, donde se realiza la limpieza: se arreglan los nulos y se unen las tablas. En Gold se calculan las métricas de costo y uso diario por organización y servicio, el revenue mensual, los tickets por día y los tokens de GenAI, y se marcan las anomalías de costo.Finalmente, los datos se cargan en Cassandra/AstraDB, donde los usuarios de las tres áreas de negocio pueden consultarlos.
 
 ```mermaid
 flowchart TD
