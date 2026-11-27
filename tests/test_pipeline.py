@@ -132,6 +132,32 @@ escribir_eventos("lote_001_repetido", [("i1", t0), ("i2", t0), ("i3", t0)])
 revisar("Con un archivo repetido:", ejecutar(), 3)
 shutil.rmtree("data/test_pruebas", ignore_errors=True)
 
+# 7) Latencia: desde que llega un archivo hasta que sus eventos están procesados
+ENTRADA, CHECKPOINT = "data/test_pruebas/in_latencia", "data/test_pruebas/checkpoint_latencia"
+os.makedirs(ENTRADA, exist_ok=True); os.makedirs(CHECKPOINT, exist_ok=True)
+
+consulta = (spark.readStream.schema(ESQUEMA).json(ENTRADA)
+            .withColumn("ingest_ts", F.current_timestamp())
+            .withColumn("source_file", F.col("_metadata.file_name"))
+            .withColumn("llegada", F.col("_metadata.file_modification_time"))
+            .withWatermark("ingest_ts", config["streaming"]["watermark"])
+            .dropDuplicatesWithinWatermark(["event_id"])
+            .writeStream.format("memory").queryName("prueba_latencia").outputMode("append")
+            .option("checkpointLocation", CHECKPOINT)
+            .trigger(processingTime="2 seconds")
+            .start())
+
+latencias = []
+for nombre in ["events_part_0117.jsonl", "events_part_0118.jsonl", "events_part_0119.jsonl"]:
+    shutil.copy(os.path.join(RUTAS["landing"], "usage_events_stream", nombre), os.path.join(ENTRADA, nombre))
+    consulta.processAllAvailable()
+    latencias.append(spark.sql(f"""SELECT CAST(current_timestamp() AS LONG) - CAST(MIN(llegada) AS LONG) AS segundos
+                                   FROM prueba_latencia WHERE source_file = '{nombre}'""").first()["segundos"])
+consulta.stop()
+print("Latencia máxima (segundos):", max(latencias))
+revisar("Latencia menor a 60 segundos:", max(latencias) < 60, True)
+shutil.rmtree("data/test_pruebas", ignore_errors=True)
+
 print()
 if fallas == 0:
     print("Todas las pruebas pasaron")
