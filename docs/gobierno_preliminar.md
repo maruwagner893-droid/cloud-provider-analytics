@@ -89,12 +89,22 @@ Roles del equipo, según el cronograma  del documento de diseño de nuestro proy
 - QA / Tester: el testing del pipeline.
 
 Los registros que quedan en Quarantine los revisa el equipo durante los 90 días de retención, ytiene que decidir si se corrigen o se descartan definitivamente.
+
 ## Acceso
 El acceso lo controlamos en dos lugares: El repositorio y Cassandra/AstraDB.
 
 - Repositorio: tiene el dataset y el código, pero no tiene credenciales. El archivo .gitignore deja afuera el secure connect bundle (secure-connect*.zip) y el archivo .env.
 - Cassandra/AstraDB: para conectarse hacen falta un token y el secure connect bundle de la base. El token se genera desde el portal de Astra con el rol Database Administrator y se guarda en los Secretos de Colab con el nombre ASTRA_TOKEN. El notebook lo lee con userdata.get, por lo cual nunca queda escrito en el código. El bundle se sube a /content/ en cada sesión de Colab.
 - Si un token se filtra, se revoca desde el portal de Astra y se genera uno nuevo.
+
+ ## Observabilidad
+Para saber si el pipeline funcionó bien miramos las salidas que deja el propio notebook en cada capa:
+- Streaming de Bronze: un StreamingQueryListener donde guarda por cada micro-lote el número de lote, las filas leídas y las filas por segundo de entrada y de proceso. En la última ejecución hubo 12 micro-lotes de 3.600 filas, 43.200 en total, y se procesaron entre 740 y 1.880 filas por segundo. Cuando termina la consulta, el listener muestra si hubo un error, y además se muestra consulta.exception(), que da None si terminó bien.
+- Silver y Quarantine: despues de cada carga se muestran las filas que quedaron en Silver, las que fueron a Quarantine y el porcentaje de inválidos, junto con la cantidad por quarantine_reason. Hoy es 0,49 %, por debajo del 5 % que pusimos como objetivo.
+- Gold y Cassandra: despues de cargar cada tabla se compara la cantidad de filas de Gold con las de Cassandra y se cuentan los errores de escritura. En las cinco tablas coinciden y hay 0 errores.
+- Pruebas: la última celda corre las 30 verificaciones de tests/test_pipeline.py y dice si pasaron todas.
+Para el objetivo de los 60 segundos usamos los datos del listener: cada micro-lote de Bronze tiene 3.600 filas y se procesó a entre 741 y 1.882 filas por segundo, o sea que cada lote tardó entre 1,9 y 4,9 segundos, por debajo de los 60 segundos. Gold y la carga en Cassandra son batch, por eso les corresponde el objetivo de menos de 30 minutos; ese tiempo todavía no lo registramos en el notebook.
+
 ## Evidencias
 Las evidencias de lo que se describe en este documento están en la carpeta evidence/ y en las salidas guardadas del notebook notebooks/02_pipeline_etapa2.ipynb.
 
