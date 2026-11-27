@@ -31,7 +31,7 @@ cloud-provider-analytics/
 │
 ├── data/  
 │   ├── cloud_provider_challenge_dataset_v1.zip  
-│   ├── landing/
+│   ├── extracted/datalake/landing/
 │   ├── bronze/
 │   ├── silver/
 │   ├── gold/
@@ -94,7 +94,7 @@ Se necesita Python 3, una cuenta de Google para Colab y una cuenta de Astra DB.
  - Crear una base de datos en Astra DB:astra.datastax.com y, desde el portal, agregar un keyspace con el nombre cloud_provider
 - Generar un token con el rol Database Administrator y descargar el secure connect bundle de la base, sin cambiarle el nombre
 - Subir el secure connect bundle a /content/ en Colab y guardar el token en los Secretos de Colab con el nombre ASTRA_TOKEN, activando el acceso del notebook
-6. Desde el menú Entorno de ejecución, elegir Ejecutar todas. El notebook tarda varios minutos. La última celda corre las pruebas automáticas y tiene que terminar con: Todas las pruebas pasaron. Las rutas y los parámetros:watermark, archivos por micro-lote, regla de costo y keyspace, se leen de config/pipeline.yml.
+6. Desde el menú Entorno de ejecución, elegir Ejecutar todas. El notebook tarda varios minutos. La última celda corre las pruebas automáticas y tiene que terminar con: Todas las pruebas pasaron. Las rutas y los parámetros:watermark, archivos por micro-lote, regla de costo, factor IQR y keyspace, se leen de config/pipeline.yml.
 7. Si Colab se reinicia, hay que volver a subir el bundle a /content/, porque esa carpeta se borra. Si en la celda de conexión a Cassandra aparece el error IndexError: list index out of range, es porque falta el bundle: hay que subirlo y ejecutar desde esa celda en adelante.
 8. Para reiniciar el pipeline desde cero, la celda 4 del notebook borra todas las salidas que están en config/pipeline.yml: Bronze, Silver, Quarantine, Gold y los checkpoints. No toca Landing ni el dataset. Hay que tener en cuenta que esta celda se ejecuta con Ejecutar todas, por lo cual cada ejecución completa borra los datos que se generaron antes y los vuelve a crear.
   
