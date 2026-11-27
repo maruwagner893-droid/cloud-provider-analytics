@@ -1,4 +1,4 @@
-Versión 3 · 17/11/2026
+Versión 4 · 27/11/2026
 
 ```mermaid
 flowchart TD
@@ -14,7 +14,7 @@ flowchart TD
 
     subgraph BATCH["Capa Batch — Patrón Lambda"]
         BRZ_B["Bronze\nTipado · Parquet · Metadatos de ingesta"]
-        SLV_B["Silver billing\nCréditos nulos en 0 · Moneda normalizada a USD"]
+        SLV_B["Silver billing y tickets\nCréditos nulos en 0 · Moneda normalizada a USD · Join con clientes"]
     end
 
     subgraph STREAM["Capa Streaming — Patrón Lambda"]
@@ -23,20 +23,20 @@ flowchart TD
     end
 
     subgraph GZ["Gold Zone — Métricas de Negocio"]
-        GLD["org_daily_usage_by_service\ncost_anomaly_mart\norg_service_cost_14d"]
+        GLD["org_daily_usage_by_service\ncost_anomaly_mart\norg_service_cost_14d\nrevenue_by_org_month\ntickets_by_org_date\ngenai_tokens_by_org_date"]
     end
 
     subgraph QUAR["Cuarentena"]
-        Q["Registros inválidos\ncosto menor a -0,01 · tasa de cambio inválida"]
+        Q["Registros inválidos\ncosto menor a -0,01 · tasa de cambio inválida · ticket sin id o fecha"]
     end
 
     subgraph SRV["Serving Layer"]
-        CASS["Cassandra / AstraDB"]
+        CASS["Cassandra / AstraDB\nuna tabla por consulta · 5 tablas"]
     end
 
     subgraph GOV["Capas Transversales"]
         META["Metadatos\ningest_ts · source_file · schema_version"]
-        OBS["Observabilidad\nStreamingQueryListener · filas por micro-lote · registros rechazados"]
+        OBS["Observabilidad\nStreamingQueryListener · filas por micro-lote · registros rechazados\nlatencia y tiempo hasta Cassandra"]
         SEC["Seguridad\ntoken en Secretos de Colab · bundle fuera del repositorio"]
         GVN["Gobernanza\nFinOps → billing · Soporte → tickets · Producto → uso y NPS"]
     end
@@ -54,13 +54,14 @@ flowchart TD
     BRZ_B -->|PySpark| SLV_B
     BRZ_S -->|PySpark| SLV_S
     BRZ_B -->|Clientes| SLV_S
-    SLV_B -->|Tasa de cambio inválida| Q
+    SLV_B -->|Tasa de cambio inválida · ticket sin id o fecha| Q
     SLV_S -->|event_id nulo · costo menor a -0,01| Q
-    SLV_B -.->|entrega final| GLD
+    SLV_S -->|PySpark Batch| GLD
+    SLV_B -->|PySpark Batch| GLD
     GLD -->|cassandra-driver| CASS
     CASS --> FO
     CASS --> PR
-    CASS -.->|entrega final| SP
+    CASS --> SP
     GOV -.->|aplica a todas las zonas| LZ
     GOV -.->|aplica a todas las zonas| BATCH
     GOV -.->|aplica a todas las zonas| STREAM
