@@ -4,7 +4,6 @@ En este backlog dejamos lo que nos falta para la entrega final del 09/12 donde l
 
 ## Obligatorio
 
-- Cargar cost_anomaly_mart en Cassandra para poder consultarlo.
 - Armar el diccionario de datos, la presentación y el video.
 - Probar el README desde cero con otra cuenta, para ver que cualquiera lo pueda ejecutar.
 
@@ -23,6 +22,7 @@ En este backlog dejamos lo que nos falta para la entrega final del 09/12 donde l
 - Evitar tener que volver a subir el archivo de Astra cada vez que Colab se reinicia.
 - Borrar los registros de Quarantine después de 90 días, como dice el gobierno.
 - Pasar el código de los notebooks a archivos .py en src/.
+- Cargar cost_anomaly_mart en Cassandra, si FinOps necesita consultarlo desde ahí; hoy queda en Gold porque ninguna de las cinco consultas lo usa.
 
 ## Fuera de alcance
 
