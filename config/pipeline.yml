@@ -28,6 +28,7 @@ streaming:
 
 calidad:
   costo_minimo: -0.01
+  factor_iqr: 1.5
 
 cassandra:
   keyspace: cloud_provider
