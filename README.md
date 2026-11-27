@@ -95,10 +95,12 @@ Se necesita Python 3, una cuenta de Google para Colab y una cuenta de Astra DB.
 - Generar un token con el rol Database Administrator y descargar el secure connect bundle de la base, sin cambiarle el nombre
 - Subir el secure connect bundle a /content/ en Colab y guardar el token en los Secretos de Colab con el nombre ASTRA_TOKEN, activando el acceso del notebook
 6. Desde el menú Entorno de ejecución, elegir Ejecutar todas. El notebook tarda varios minutos. La última celda corre las pruebas automáticas y tiene que terminar con: Todas las pruebas pasaron. Las rutas y los parámetros:watermark, archivos por micro-lote, regla de costo y keyspace, se leen de config/pipeline.yml.
-7. Si Colab se reinicia, hay que volver a subir el bundle a /content/, porque esa carpeta se borra.
- 
+7. Si Colab se reinicia, hay que volver a subir el bundle a /content/, porque esa carpeta se borra. Si en la celda de conexión a Cassandra aparece el error IndexError: list index out of range, es porque falta el bundle: hay que subirlo y ejecutar desde esa celda en adelante.
+8. Para reiniciar el pipeline desde cero, la celda 4 del notebook borra todas las salidas que están en config/pipeline.yml: Bronze, Silver, Quarantine, Gold y los checkpoints. No toca Landing ni el dataset. Hay que tener en cuenta que esta celda se ejecuta con Ejecutar todas, por lo cual cada ejecución completa borra los datos que se generaron antes y los vuelve a crear.
+  
 ## Pruebas
- Las pruebas automáticas están en tests/test_pipeline.py. Se corren después de ejecutar el notebook 02 y la última celda del notebook ya las ejecuta sola. Si se quiere correr desde otra computadora, hay que pararse en la carpeta del repositorio y ejecutar python tests/test_pipeline.py. Ademas las pruebas revisan los conteos de cada capa, las reglas de calidad, Gold, que Gold saque los eventos repetidos, el watermark sobre ingest_ts y la idempotencia, y al final dicen si pasaron todas. El detalle se encuentra en docs/pruebas_y_reproducibilidad.md.
+ Las pruebas automáticas están en tests/test_pipeline.py. Se corren después de ejecutar el notebook 02 y la última celda del notebook ya las ejecuta sola. Si se quiere correr desde otra computadora, hay que pararse en la carpeta del repositorio y ejecutar python tests/test_pipeline.py. Ademas las pruebas revisan los conteos de cada capa, las reglas de calidad, Silver de tickets, Gold, los marts de 14 días, revenue, GenAI y tickets, que Gold saque los eventos repetidos, el watermark sobre ingest_ts y la idempotencia, y al final dicen si pasaron todas. El detalle se encuentra en docs/pruebas_y_reproducibilidad.md.
+ 
 ## Limitaciones
 - El watermark de Bronze va sobre ingest_ts y no sobre timestamp, porque con los archivos como vienen el watermark sobre timestamp descarta el 98,3 % de los eventos. Por eso Bronze no descarta eventos por su fecha y los tardíos se corrigen cuando Gold se vuelve a calcular en batch.
 - En la tabla de la consulta 2 el costo es parte de la clave, así que si se recalcula la misma ventana de 14 días con datos distintos hay que borrar antes esa partición en Cassandra; si no, quedan filas con el costo anterior.
