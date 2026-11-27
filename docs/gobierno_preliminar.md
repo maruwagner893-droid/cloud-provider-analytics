@@ -102,8 +102,9 @@ Para saber si el pipeline funcionó bien miramos las salidas que deja el propio 
 - Streaming de Bronze: un StreamingQueryListener donde guarda por cada micro-lote el número de lote, las filas leídas y las filas por segundo de entrada y de proceso. En la última ejecución hubo 12 micro-lotes de 3.600 filas, 43.200 en total. Cuando termina la consulta, el listener muestra si hubo un error, y además se muestra consulta.exception(), que da None si terminó bien.
 - Silver y Quarantine: despues de cada carga se muestran las filas que quedaron en Silver, las que fueron a Quarantine y el porcentaje de inválidos, junto con la cantidad por quarantine_reason. Hoy es 0,49 %, por debajo del 5 % que pusimos como objetivo.
 - Gold y Cassandra: despues de cargar cada tabla se compara la cantidad de filas de Gold con las de Cassandra y se cuentan los errores de escritura. En las cinco tablas coinciden y hay 0 errores.
-- Pruebas: la última celda corre las 30 verificaciones de tests/test_pipeline.py y dice si pasaron todas.
+- Pruebas: la última celda corre las 31 verificaciones de tests/test_pipeline.py y dice si pasaron todas.
 Para los objetivos de tiempo del documento de diseño hicimos dos mediciones. Para los 60 segundos, la prueba de latencia copia tres archivos originales mientras el stream está corriendo y mide cuánto pasa desde que llega cada archivo, con _metadata.file_modification_time, hasta que sus eventos ya están procesados, y en todos los casos tardó menos de 60 segundos; esta prueba tambien está en tests/test_pipeline.py. Para los 30 minutos, despues de la última carga en Cassandra se mide el tiempo desde que entró el primer evento a Bronze hasta ese momento, y tardó menos de 30 minutos, aun contando las celdas de prueba que están en el medio. Las capturas están en evidence/04_pipeline_spark/16_prueba_latencia.png y 17_tiempo_hasta_cassandra.png.
+
 ## Evidencias
 Las evidencias de lo que se describe en este documento están en la carpeta evidence/ y en las salidas guardadas del notebook notebooks/02_pipeline_etapa2.ipynb.
 
