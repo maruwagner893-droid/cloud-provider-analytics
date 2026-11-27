@@ -35,6 +35,8 @@ Las pruebas automáticas están en tests/test_pipeline.py. Estas se corren despu
 
 - Datos tardíos: en una prueba aparte, con un watermark sobre timestamp, un evento con fecha anterior al watermark se descarta y la métrica numRowsDroppedByWatermark marca 1. En Bronze el watermark va sobre ingest_ts, así que ahí no se descartan eventos por su fecha.
 - Watermark sobre ingest_ts y repetidos tardíos: con los mismos eventos de la prueba de datos tardíos, pero con el watermark sobre ingest_ts como en Bronze, entran los 4 eventos y no se descarta ninguno. Ademas agregamos a Silver 209 eventos repetidos y Gold sigue dando 11.050 filas y 42.989 eventos, porque calcular_gold saca los repetidos por event_id.
+- Latencia: el stream lee tres archivos originales que se copian mientras está corriendo, y se mide el tiempo desde que llega cada archivo hasta que sus eventos están procesados. En todos los casos fue menos de 60 segundos; esta prueba también está en tests/test_pipeline.py.
+- Tiempo hasta Cassandra: despues de la última carga en Cassandra se mide el tiempo desde que entró el primer evento a Bronze, y fue menos de 30 minutos.
 - Conteos de cada capa: Bronze 43.200, Silver 42.989, Gold 11.050 filas y Cassandra 11.050 filas, con la misma suma de requests en Gold y en Cassandra. En las otras tablas de Cassandra tambien coinciden las filas con Gold: 262 en la de 14 días, 984 en tickets, 240 en revenue y 848 en GenAI.
 - Las cinco consultas CQL devuelven resultados, las capturas están en evidence/03_serving_cassandra/.
 
