@@ -23,7 +23,7 @@ flowchart TD
     end
 
     subgraph GZ["Gold Zone — Métricas de Negocio"]
-        GLD["org_daily_usage_by_service\ncost_anomaly_mart\norg_service_cost_14d\nrevenue_by_org_month\ntickets_by_org_date\ngenai_tokens_by_org_date"]
+        GLD["org_daily_usage_by_service\ncost_anomaly_mart (solo en Gold)\norg_service_cost_14d\nrevenue_by_org_month\ntickets_by_org_date\ngenai_tokens_by_org_date"]
     end
 
     subgraph QUAR["Cuarentena"]
