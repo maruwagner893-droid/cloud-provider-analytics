@@ -221,8 +221,7 @@ Por último, en Gold se producen las métricas finales para que los usuarios de 
 
 Los archivos en Bronze, Silver y Gold se guardan en formato Parquet en vez de CSV porque se guardan los datos por columnas y comprimidos. Si PySpark necesita solo algunos de esos datos, lee solo la columna y no el archivo completo. En el proyecto tenemos 43.200 eventos y múltiples tablas, y con esto lo podemos hacer más rápido y que ocupe menos espacio.
 
-Los eventos de uso consideramos que se organicen por year/month. debido a que con las 80 organizaciones del dataset, particionar también por org_id generaría 160 carpetas de unas 270 filas cada una, con muchos archivos pequeños. Con año y mes quedan solo 2 carpetas, de 20.880 y 22.320 eventos, y PySpark sigue aplicando partition pruning, es decir que no lee todo el dataset cuando se filtra por período. Las consultas por organización las resuelve Cassandra/AstraDB en la capa de serving.Los maestros que pasamos a Bronze: clientes, usuarios y billing, se guardan particionados.
-
+Los eventos de uso consideramos que se organicen por year/month. debido a que con las 80 organizaciones del dataset, particionar también por org_id generaría 160 carpetas de unas 270 filas cada una, con muchos archivos pequeños. Con año y mes quedan solo 2 carpetas, de 20.880 y 22.320 eventos, y PySpark sigue aplicando partition pruning, es decir que no lee todo el dataset cuando se filtra por período. Las consultas por organización las resuelve Cassandra/AstraDB en la capa de serving.Los maestros que pasamos a Bronze: clientes, usuarios, billing y tickets, se guardan particionados.
 Para que un registro pase de una zona a la siguiente se aplican las siguientes reglas: de Landing a Bronze, el archivo tiene que poder leerse sin errores; si está corrupto no se ingesta. De Bronze a Silver, el registro tiene que tener los tipos de dato correctos y las columnas de metadatos: ingest_ts, source_file, que se aplican al leer en Bronze. En los eventos de uso, además, tiene que tener event_id y un cost_usd_increment mayor o igual a -0,01; si no cumple va a Quarantine. De Silver a Gold, el registro tiene que estar limpio: nulos tratados, moneda normalizada y joins aplicados; si no cumple va a Quarantine. Por ultimo de Gold a Cassandra, las métricas no pueden tener nulos en los campos clave.
 
 Luego en Quarantine se guarda el registro tal como quedó en Bronze ya tipificado, junto con los metadatos ingest_ts y source_file, una columna con el motivo del rechazo en quarantine_reason y la fecha de envío a cuarentena en quarantine_ts. De esa forma el equipo puede revisar cada caso durante los 90 días de retención antes del descarte definitivo.
@@ -237,8 +236,8 @@ En Landing los datos se conservan 30 días, ya que una vez ingeridos en Bronze l
 2. Esos archivos se copian tal cual a Landing, sin modificarse nada.
 3. PySpark Batch los lee de Landing, les pone el tipo de dato correcto, saca los duplicados por clave, agrega las columnas ingest_ts y source_file, y los guarda en Parquet en Bronze.
 4. PySpark toma lo de Bronze, lo lleva a Silver y ahí arregla nulos y normaliza la moneda a USD. Los registros inválidos se envían a Cuarentena.
-5. PySpark toma lo de Silver, calcula las métricas de negocio y las guarda en Gold. En esta etapa Gold se arma con los eventos; billing se suma en la entrega final
-6. Desde Gold, leemos el mart con PySpark y lo cargamos en Cassandra/AstraDB con el driver de Python:cassandra-driver.
+5. PySpark toma lo de Silver, calcula las métricas de negocio y las guarda en Gold. Gold se arma con los eventos, billing y tickets.
+6. Desde Gold, leemos los marts con PySpark y los cargamos en Cassandra/AstraDB con el driver de Python:cassandra-driver.
 
 ### 8.2 Flujo Streaming (Datos en tiempo real)
 
