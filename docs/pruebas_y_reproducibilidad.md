@@ -31,7 +31,7 @@ Para los errores decidimos apoyarnos en los controles sobre los datos y sobre la
 La conexión a Cassandra/AstraDB no tiene un control propio: por eso se tiene que tener encuenta que si falta el secure connect bundle o el token, la celda falla y hay que revisar el paso 5 del README.
 
 ## Pruebas
-Las pruebas automáticas están en tests/test_pipeline.py. Estas se corren después de ejecutar el notebook 02, ademas la última celda del notebook ya las ejecuta sola. Hacen 30 verificaciones y al final dicen si todas pasaron; la salida está en evidence/04_pipeline_spark/13a_pruebas_automaticas.png y 13b_pruebas_automaticas.png.
+Las pruebas automáticas están en tests/test_pipeline.py. Estas se corren después de ejecutar el notebook 02, ademas la última celda del notebook ya las ejecuta sola. Hacen 31 verificaciones y al final dicen si todas pasaron; la salida está en evidence/04_pipeline_spark/13a_pruebas_automaticas.png y 13b_pruebas_automaticas.png.
 
 - Datos tardíos: en una prueba aparte, con un watermark sobre timestamp, un evento con fecha anterior al watermark se descarta y la métrica numRowsDroppedByWatermark marca 1. En Bronze el watermark va sobre ingest_ts, así que ahí no se descartan eventos por su fecha.
 - Watermark sobre ingest_ts y repetidos tardíos: con los mismos eventos de la prueba de datos tardíos, pero con el watermark sobre ingest_ts como en Bronze, entran los 4 eventos y no se descarta ninguno. Ademas agregamos a Silver 209 eventos repetidos y Gold sigue dando 11.050 filas y 42.989 eventos, porque calcular_gold saca los repetidos por event_id.
