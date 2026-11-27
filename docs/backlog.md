@@ -27,3 +27,9 @@ En este backlog dejamos lo que nos falta para la entrega final del 09/12 donde l
 ## Fuera de alcance
 
 - Tenemos por un lado lo de leer los eventos desde Kafka, porque la fuente es una carpeta de archivos JSONL. Y por otro lado lo de usar Delta Lake.
+
+  ## Lo que hicimos para la entrega final
+
+Para la entrega final pasamos support_tickets a Bronze y a Silver, donde los tickets sin ticket_id o sin created_at van a Quarantine y se unen con customers_orgs. En Gold armamos tres marts nuevos: revenue_by_org_month, con el subtotal, los créditos y los impuestos de cada organización por mes en USD; genai_tokens_by_org_date, con los tokens y el costo de GenAI por organización y día; y tickets_by_org_date, con la cantidad de tickets, los que incumplieron el SLA, los abiertos y el CSAT promedio por organización, fecha y severidad. En Cassandra/AstraDB creamos una tabla para cada una de las cinco consultas que pide la consigna, y las cinco devuelven resultados. El mart de anomalías queda en Gold, porque ninguna de las cinco consultas lo usa.
+
+Ademas agregamos una celda de limpieza para reiniciar el pipeline desde cero, consulta.exception() para ver si el streaming terminó con error, y dos mediciones de tiempo: desde que llega un archivo hasta que sus eventos están procesados pasan menos de 60 segundos, y desde el primer evento en Bronze hasta que todo está en Cassandra pasan menos de 30 minutos. Las pruebas automáticas pasaron de 21 a 31 verificaciones.
